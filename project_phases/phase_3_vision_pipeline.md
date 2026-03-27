@@ -1,23 +1,38 @@
-# Phase 3: Multimodal Vision Pipeline (Optional)
+# Phase 3: Multimodal Vision Pipeline — SKIP
 
 **Timeline:** 1-2 weeks (after Phase 2)
-**Priority:** Low — only pursue if targeting vision-heavy roles or if momentum is strong
-**Status:** Not Started
+**Priority:** Skip — time is better spent polishing Phases 1+2+4
+**Status:** Skipped (retained for reference)
 **Depends On:** Phase 1 (Phase 2 recommended but not required)
 
 ---
 
-## Objective
+## Decision: Skip This Phase
+
+After external review, this phase has been deprioritized for the following reasons:
+
+1. **Breaks narrative cohesion.** A turbofan monitor that suddenly inspects metal nuts is jarring. The MVTec dataset is a completely different domain — it's architecturally a bolt-on, not a natural extension.
+2. **Dataset mismatch with chosen model.** MVTec provides pixel-level segmentation masks, not bounding boxes. Using YOLOv8 would require converting masks to bboxes, producing worse results than using an anomaly detection approach (PatchCore/anomalib) that MVTec was designed for.
+3. **Simulated video stream won't impress.** At an industrial AI company, a fake RTSP stream from static images is transparent.
+4. **Time is better invested** polishing the agent architecture (Phase 1), knowledge graph (Phase 2), and dashboard (Phase 4).
+
+### Interview Framing (If Vision Comes Up)
+
+> "The agent architecture is designed to be extensible — adding a Vision Quality Agent with a defect detection tool would follow the same supervisor routing pattern. I prioritized depth on the sensor data and knowledge graph layers for this demo, since those map most directly to the agentic orchestration and industrial ontology requirements."
+
+---
+
+## Original Plan (Retained for Reference)
+
+### Objective
 
 Add a computer vision defect detection pipeline as another tool available to the agent system. This creates a true multimodal system where the agent can reason across both time-series sensor data and visual inspection data. A simulated "video stream" from image sequences feeds detection results into the same agent framework.
 
-## Honest Assessment
+### If Revisited Later
 
-This phase uses a **different dataset** (MVTec Anomaly Detection) — not C-MAPSS. It's architecturally a bolt-on, not a natural extension of the turbofan monitoring system. The narrative is: "the same agent framework can also process visual inspection data from the manufacturing floor." This is defensible but less cohesive than Phases 1-2.
-
-**Do this phase if:** You're targeting roles that specifically call out multimodal vision (like Serious AI's "YOLO / segmentation" requirement on line 45) and you have the time.
-
-**Skip this phase if:** Your interview pipeline doesn't emphasize vision, or you'd rather invest the time in polishing Phases 1-2 and the dashboard.
+- Use **PatchCore (anomalib)** instead of YOLOv8 — it's the correct approach for MVTec's unsupervised anomaly detection format
+- Only pursue if targeting a role that specifically requires multimodal vision experience
+- Budget 1-2 weeks on top of existing phases
 
 ---
 

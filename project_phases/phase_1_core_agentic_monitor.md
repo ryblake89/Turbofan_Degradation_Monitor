@@ -59,7 +59,7 @@ User Query
  - sensor_history  - maintenance_scheduler
  - anomaly_check   - fleet_summary
  - rul_estimate    - playbook_retrieval
- - fft_features
+ - sensor_trend_analysis
     |              |
     v              v
 [Response Generator] <-- merges results into natural language
@@ -79,7 +79,7 @@ User Query
 
 ### Diagnostic Agent
 - Specializes in equipment health assessment
-- Has access to: `sensor_history_lookup`, `anomaly_check`, `rul_estimate`, `fft_feature_extraction`
+- Has access to: `sensor_history_lookup`, `anomaly_check`, `rul_estimate`, `sensor_trend_analysis`
 - Answers questions like: "Is unit 3 degrading?", "What's the anomaly score for unit 12?", "Which sensors are trending abnormally?"
 
 ### Operations Planning Agent
@@ -167,27 +167,33 @@ def anomaly_check(unit_id: int, window_size: int = 30) -> dict:
 - **Feature importance:** Derive from isolation path lengths per feature
 - **Threshold:** Configurable contamination parameter, default 0.05
 
-### 3. FFT Feature Extraction
+### 3. Sensor Trend Analysis
 
-**Purpose:** Extract frequency-domain features for cross-sensor correlation analysis.
+**Purpose:** Compute rolling statistical features, detect change points, and track cross-sensor divergence patterns.
+
+> **Design note:** The original plan included FFT feature extraction, but C-MAPSS data is sampled once per operational cycle — these are already-aggregated readings, not high-frequency sensor streams. Real FFT (what the JD means by line 45) operates on vibration data at kHz rates. Applying FFT to ~200 slowly-changing datapoints is analytically questionable. Rolling statistical features and cross-sensor divergence tracking are more honest and equally informative for cycle-level data.
 
 ```python
-def fft_feature_extraction(unit_id: int, sensors: list[str] = None) -> dict:
+def sensor_trend_analysis(unit_id: int, window_size: int = 20, sensors: list[str] = None) -> dict:
     """
-    Applies FFT to sensor time series, extracts dominant frequencies
-    and spectral energy features. Computes cross-sensor correlations.
+    Computes rolling statistics, detects change points, and tracks
+    cross-sensor divergence for the given unit.
     Output: {
         "unit_id": int,
-        "spectral_features": dict[str, dict],  # per-sensor FFT features
-        "cross_correlations": dict[str, float], # sensor pair correlations
-        "frequency_anomalies": list[dict]       # unusual spectral patterns
+        "rolling_features": dict[str, dict],  # per-sensor: {mean, std, slope, rate_of_change}
+        "change_points": list[dict],           # [{sensor, cycle, direction, magnitude}, ...]
+        "cross_sensor_divergence": dict[str, float],  # sensor pair divergence scores
+        "trend_summary": str,                  # "stable", "gradual_degradation", "accelerating"
+        "window_size": int
     }
     """
 ```
 
-- Maps to JD line: "FFT feature extraction and cross-sensor correlation"
+- **Rolling statistics:** Mean, std, slope, and rate of change over configurable windows
+- **Change-point detection:** Identifies the "knee" where a sensor transitions from stable to degrading (CUSUM or simple slope-change detection)
+- **Cross-sensor divergence:** Pairwise correlation tracking — when sensors that normally correlate begin to diverge, it signals emerging faults (e.g., sensors 11 and 12 diverging indicates HPC efficiency loss)
 - Default sensors: the 7 most informative channels
-- Flags unusual frequency patterns that may indicate emerging faults
+- Analytically appropriate for cycle-level C-MAPSS data
 
 ### 4. RUL Estimation (Piecewise Linear)
 
@@ -484,14 +490,22 @@ User: "What's the fleet status? Any units I should worry about?"
   2. **Agent prompts:** Each sub-agent has a system prompt defining its role, available tools, and response format
   3. **Response generator prompt:** Synthesizes tool outputs into natural language with appropriate detail level
 
+### API Cost Controls
+
+LLM API calls during development add up fast. Implement these from day 1:
+
+- **Response caching:** Cache common queries (fleet summary, recently-checked unit status) with a TTL. Fleet summary doesn't change between sensor updates — no reason to burn tokens on repeated identical queries.
+- **Hard spend limit:** Set a daily/weekly budget cap via the Anthropic API dashboard. Kill switch if costs exceed threshold.
+- **Token tracking:** Log input/output tokens per request in the decision trace. This also maps to the JD's "cost controls" requirement (line 43).
+- **Development mode:** For testing agent routing and tool orchestration, use a smaller/cheaper model (Haiku) or mock LLM responses. Only use the full model for integration tests and demos.
+
 ---
 
 ## API Layer (FastAPI)
 
 ```python
 # Core endpoints
-POST /chat              # Main conversation endpoint
-POST /chat/stream       # WebSocket streaming variant
+POST /chat              # Main conversation endpoint (REST, synchronous)
 GET  /units/{id}/status # Direct unit health check
 GET  /fleet/summary     # Fleet overview
 GET  /maintenance/log   # Maintenance history
@@ -500,8 +514,10 @@ GET  /maintenance/log   # Maintenance history
 GET  /traces            # Decision trace viewer
 GET  /traces/{id}       # Single trace detail
 GET  /health            # API health check
+GET  /costs/summary     # Token usage and cost tracking
 ```
 
+- **REST first, not WebSocket.** Start with synchronous POST /chat → wait → return response. WebSocket streaming adds a full layer of complexity (connection management, reconnection, error states) for minimal demo value. Upgrade to WebSocket in Phase 4 only if time permits.
 - Session management via session IDs (in-memory or Redis)
 - CORS configured for frontend consumption (Phase 4)
 
@@ -521,14 +537,14 @@ GET  /health            # API health check
 - [ ] Train Isolation Forest on healthy baselines (first 30% of unit life)
 - [ ] Validate anomaly detection against known failure trajectories
 - [ ] Implement piecewise linear RUL estimator (knee detection + linear extrapolation)
-- [ ] Add FFT feature extraction (dominant frequencies, spectral energy, cross-correlation)
+- [ ] Implement sensor trend analysis (rolling stats, change-point detection, cross-sensor divergence)
 - [ ] Implement health index composite (weighted anomaly + RUL)
 - [ ] Model validation notebook with evaluation metrics
 
 ### Day 3: Tool Functions
 - [ ] Implement `sensor_history_lookup()` with PostgreSQL queries
 - [ ] Implement `anomaly_check()` wrapping the trained Isolation Forest
-- [ ] Implement `fft_feature_extraction()`
+- [ ] Implement `sensor_trend_analysis()`
 - [ ] Implement `rul_estimate()` wrapping the piecewise linear model
 - [ ] Implement `maintenance_scheduler()` with mock CMMS connector
 - [ ] Implement `fleet_summary()` aggregation
@@ -583,7 +599,7 @@ GET  /health            # API health check
 | Database | PostgreSQL + pgvector |
 | Anomaly Detection | scikit-learn (Isolation Forest) |
 | RUL Estimation | NumPy/SciPy (piecewise linear) |
-| FFT Features | NumPy/SciPy |
+| Trend Analysis | NumPy/SciPy (rolling stats, change-point detection) |
 | Memory/Playbooks | pgvector or ChromaDB |
 | Containerization | Docker Compose |
 | Data Processing | pandas, SQLAlchemy |
@@ -604,6 +620,6 @@ GET  /health            # API health check
 | 29 | "Worked with physical-world data at scale" | C-MAPSS sensor data + Samsung experience |
 | 41 | "Agent runtime and orchestration across... Predictive Maintenance and Operations Planning agents" | Multi-agent supervisor pattern |
 | 43 | "Context assembly... tool dispatch, approval gates, tracing and cost controls" | State management, HITL, decision traces |
-| 45 | "FFT feature extraction and cross-sensor correlation" | FFT tool |
+| 45 | "FFT feature extraction and cross-sensor correlation" | Sensor trend analysis with cross-sensor divergence tracking (FFT replaced — see design note in tool spec) |
 | 49 | "Memory layer including trace storage, playbooks... transferable failure pattern libraries" | Playbook retrieval system |
 | 37 | "Shipped end-to-end systems from ingestion and model serving through backend services" | Full stack: data ingestion -> models -> API |

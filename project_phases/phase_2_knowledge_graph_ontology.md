@@ -59,7 +59,7 @@ Extend the multi-agent system with a Neo4j knowledge graph that models an indust
 | AFFECTS | FailureMode | Subsystem | severity |
 | INDICATED_BY | FailureMode | Sensor | correlation_strength |
 | PRECEDED_BY | FailureMode | SensorPattern | typical_lead_time_cycles |
-| SIMILAR_TO | Engine | Engine | pattern_similarity_score |
+| SIMILAR_TO | Engine | Engine | similarity_score (Pearson correlation on degrading sensors 4, 11, 12) |
 
 ### Mapping C-MAPSS to the Ontology
 
@@ -146,6 +146,8 @@ After Phase 2 (with graph context):
 
 Estimated effort: half a day. The schema is synthetic but the sensor mappings are grounded in real turbofan engineering.
 
+> **Rabbit-hole warning:** The SIMILAR_TO relationship needs a clear, simple similarity definition. Use Pearson correlation on the key degrading sensors (4, 11, 12) during the degradation phase of each unit's life. Do not invest time in Dynamic Time Warping (DTW), learned embeddings, or other complex similarity measures — simple correlation is sufficient and keeps this phase on schedule.
+
 ---
 
 ## Day-by-Day Plan
@@ -159,7 +161,7 @@ Estimated effort: half a day. The schema is synthetic but the sensor mappings ar
 ### Day 2: Data Population + Graph Queries
 - [ ] Write `populate_ontology.py` to sync C-MAPSS data into graph
 - [ ] Link anomaly events and maintenance logs to graph nodes
-- [ ] Compute and store engine similarity relationships
+- [ ] Compute and store engine similarity relationships (simple Pearson correlation on sensors 4, 11, 12 during degradation phase — do NOT rabbit-hole into DTW or complex similarity metrics)
 - [ ] Write and test Cypher queries for each `query_type`
 
 ### Day 3: Agent Integration

@@ -1,6 +1,6 @@
 # Phase 4: React Dashboard & Decision Platform
 
-**Timeline:** 1-2 weeks (after Phase 1, ideally after Phase 2)
+**Timeline:** ~2 weeks (after Phase 1, ideally after Phase 2)
 **Priority:** Medium — impressive for demos but large time investment
 **Status:** Not Started
 **Depends On:** Phase 1 (Phase 2 enhances it significantly)
@@ -112,25 +112,9 @@ The Serious AI JD tech stack (line 82) lists React Native. While this is a web a
 +------------------------------------------------------------------+
 ```
 
-### 5. Alert Workflow Manager
+### ~~5. Alert Workflow Manager~~ — CUT
 
-```
-+------------------------------------------------------------------+
-| ACTIVE ALERTS & PENDING ACTIONS                                   |
-+------------------------------------------------------------------+
-| PENDING APPROVAL (2)                                              |
-| [ ] Unit 7 — Service HPC — proposed 2h ago — [Approve] [Reject] |
-| [ ] Unit 23 — Replace unit — proposed 30m ago — [Approve] [Reject]|
-+------------------------------------------------------------------+
-| SCHEDULED MAINTENANCE (4)                                         |
-| Unit 41 — Inspect — scheduled cycle 180 — IN 12 CYCLES          |
-| Unit 12 — Service — scheduled cycle 195 — IN 27 CYCLES          |
-+------------------------------------------------------------------+
-| COMPLETED (last 7 days)                                           |
-| Unit 19 — Service — completed — RESOLVED ✓                       |
-| Unit 55 — Inspect — completed — NO ACTION NEEDED ✓               |
-+------------------------------------------------------------------+
-```
+> **Decision:** This page overlaps significantly with the Priority Alerts section on the Fleet Overview page and the approval flow in the Agent Chat. Four pages is enough for a demo. Pending approvals can be surfaced in Fleet Overview's alert section and handled through the chat interface.
 
 ---
 
@@ -145,7 +129,7 @@ The Serious AI JD tech stack (line 82) lists React Native. While this is a web a
 | Routing | React Router v6 |
 | Charts | Recharts or Plotly.js |
 | UI Components | Tailwind CSS + shadcn/ui |
-| WebSocket | Native WebSocket API for chat streaming |
+| Chat Transport | REST polling initially (POST /chat → wait → render). Upgrade to WebSocket only if time permits |
 | Build | Vite |
 
 ### API Integration
@@ -156,9 +140,11 @@ The React app consumes the FastAPI backend from Phase 1:
 Frontend (React)  <-->  FastAPI Backend  <-->  LangGraph Agent
      |                       |                      |
      |-- REST: fleet,        |-- PostgreSQL          |-- Tools
-     |   unit, traces        |-- Neo4j (Phase 2)     |-- LLM
-     |-- WebSocket: chat     |                       |
+     |   unit, traces,       |-- Neo4j (Phase 2)     |-- LLM
+     |   chat (sync POST)    |                       |
 ```
+
+> **REST first.** Start with synchronous POST /chat → wait → render response. WebSocket streaming adds a full layer of complexity (connection management, reconnection, error states) for minimal demo improvement. The agent's response time is dominated by LLM inference, not transport — REST is fine for a portfolio demo.
 
 ### Key Frontend Components
 
@@ -173,18 +159,16 @@ src/
 │   ├── ApprovalDialog.tsx       # HITL approve/reject/modify
 │   ├── DecisionTraceTimeline.tsx # Trace viewer with filtering
 │   ├── SubsystemDiagram.tsx     # Engine subsystem visualization
-│   ├── AlertBanner.tsx          # Priority alerts strip
-│   └── MaintenanceCalendar.tsx  # Scheduled maintenance view
+│   └── AlertBanner.tsx          # Priority alerts strip
 ├── pages/
 │   ├── FleetOverview.tsx
 │   ├── UnitDetail.tsx
 │   ├── AgentAssistant.tsx
-│   ├── DecisionTraces.tsx
-│   └── AlertWorkflows.tsx
+│   └── DecisionTraces.tsx
 ├── hooks/
 │   ├── useFleetData.ts          # React Query hooks for fleet endpoints
 │   ├── useUnitData.ts
-│   ├── useAgentChat.ts          # WebSocket hook for chat
+│   ├── useAgentChat.ts          # REST polling hook for chat
 │   └── useDecisionTraces.ts
 ├── api/
 │   └── client.ts                # Axios/fetch wrapper for FastAPI
@@ -214,16 +198,15 @@ src/
 
 ### Day 5-6: Agent Chat Interface
 - [ ] Build AgentChat with message history
-- [ ] WebSocket integration for streaming responses
+- [ ] REST polling integration (POST /chat → loading state → render response)
 - [ ] ToolCallCard — expandable cards showing tool inputs/outputs/latency
 - [ ] ApprovalDialog for HITL actions
-- [ ] Real-time approval flow: propose → approve/reject → execute
+- [ ] Approval flow: propose → approve/reject → execute
 
-### Day 7-8: Decision Traces + Alert Workflows
+### Day 7-8: Decision Traces
 - [ ] DecisionTraceTimeline with filtering (by unit, intent, outcome)
 - [ ] Trace detail view showing full tool chain
-- [ ] Alert workflow manager with pending approvals
-- [ ] Maintenance calendar/schedule view
+- [ ] Add pending approval indicators to Fleet Overview alerts section
 
 ### Day 9-10: Polish + Docker
 - [ ] Responsive layout refinements
@@ -231,6 +214,14 @@ src/
 - [ ] Add frontend to Docker Compose (nginx serving build)
 - [ ] End-to-end walkthrough testing
 - [ ] Screen recording of full dashboard demo
+
+### Day 11-14: Deployment + Final Polish
+- [ ] Deploy to cloud (Railway, Fly.io, or DigitalOcean droplet)
+- [ ] Verify live URL works end-to-end
+- [ ] Set up environment variables and API key management for production
+- [ ] Final README polish with live demo link
+- [ ] 3-5 minute demo video walkthrough (status check → anomaly → maintenance proposal → approval → audit trail)
+- [ ] Optional: upgrade chat to WebSocket streaming if time permits
 
 ---
 
@@ -273,6 +264,29 @@ services:
     volumes:
       - neo4jdata:/data
 ```
+
+---
+
+## Live Deployment
+
+Docker Compose on your laptop is not a demo. Deploy to a shareable URL so reviewers can interact with the system directly. This is the difference between "I built this" and "here, try it."
+
+### Recommended Options (cheapest to most flexible)
+
+| Platform | Cost | Pros | Cons |
+|----------|------|------|------|
+| Railway | Free tier / ~$5/mo | Easiest Docker Compose deployment, auto-HTTPS | Limited free tier resources |
+| Fly.io | ~$5-10/mo | Good Docker support, global edge | Slightly more config needed |
+| DigitalOcean Droplet | $6/mo | Full control, persistent | Manual setup, no auto-scaling |
+
+### Deployment Checklist
+- [ ] Environment variables managed securely (not committed to git)
+- [ ] Anthropic API key with spend limit configured
+- [ ] PostgreSQL data seeded on first deploy
+- [ ] Neo4j data populated on first deploy (if Phase 2 done)
+- [ ] Health check endpoint working
+- [ ] HTTPS enabled
+- [ ] Response caching active to minimize API costs from demo traffic
 
 ---
 
