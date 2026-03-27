@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (large files — download separately)
+data/raw/
+data/processed/
+*.csv
+*.h5
+*.hdf5
+
+# Models (trained artifacts)
+models/saved/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Node (Phase 4 frontend)
+node_modules/
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
