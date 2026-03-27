@@ -2,7 +2,7 @@
 
 **Timeline:** ~9 days
 **Priority:** Highest — closes the agentic systems gap across multiple target roles
-**Status:** Not Started
+**Status:** In Progress — Day 1 complete
 
 ---
 
@@ -525,13 +525,14 @@ GET  /costs/summary     # Token usage and cost tracking
 
 ## Day-by-Day Plan
 
-### Day 1: Data Foundation
-- [ ] Download C-MAPSS dataset (FD001 to start, expand to FD002-FD004 later)
-- [ ] Set up PostgreSQL (Docker container)
-- [ ] Design and create schema (tables above)
-- [ ] Write data ingestion script (pandas + SQLAlchemy)
-- [ ] Jupyter EDA notebook: sensor distributions, correlation analysis, degradation curves
-- [ ] Identify healthy vs. degrading operating regions
+### Day 1: Data Foundation ✅
+- [x] Download C-MAPSS dataset (FD001 to start, expand to FD002-FD004 later)
+- [x] Set up PostgreSQL (Docker container with pgvector)
+- [x] Design and create schema (tables above, with CHECK constraints)
+- [x] Write data ingestion script (pandas + SQLAlchemy, idempotent)
+- [x] Jupyter EDA notebook: sensor distributions, correlation analysis, degradation curves
+- [x] Identify healthy vs. degrading operating regions
+- [x] RUL ground truth validation (cross-check train vs test RUL patterns)
 
 ### Day 2: ML Models
 - [ ] Train Isolation Forest on healthy baselines (first 30% of unit life)

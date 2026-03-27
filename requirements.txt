@@ -20,10 +20,10 @@ seaborn==0.13.2
 jupyterlab==4.3.4
 
 # LLM & Agents
-anthropic==0.42.0
-langgraph==0.2.62
-langchain-anthropic==0.3.7
-langchain-core==0.3.29
+anthropic>=0.45.0,<1
+langgraph>=0.2.62,<1
+langchain-anthropic>=0.3.7,<1
+langchain-core>=0.3.34,<1
 
 # Utilities
 python-dotenv==1.0.1
