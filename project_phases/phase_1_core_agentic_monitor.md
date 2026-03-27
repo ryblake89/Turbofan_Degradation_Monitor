@@ -534,22 +534,22 @@ GET  /costs/summary     # Token usage and cost tracking
 - [x] Identify healthy vs. degrading operating regions
 - [x] RUL ground truth validation (cross-check train vs test RUL patterns)
 
-### Day 2: ML Models
-- [ ] Train Isolation Forest on healthy baselines (first 30% of unit life)
-- [ ] Validate anomaly detection against known failure trajectories
-- [ ] Implement piecewise linear RUL estimator (knee detection + linear extrapolation)
-- [ ] Implement sensor trend analysis (rolling stats, change-point detection, cross-sensor divergence)
-- [ ] Implement health index composite (weighted anomaly + RUL)
-- [ ] Model validation notebook with evaluation metrics
+### Day 2: ML Models ✅
+- [x] Train Isolation Forest on healthy baselines (first 30% of unit life)
+- [x] Validate anomaly detection against known failure trajectories
+- [x] Implement piecewise linear RUL estimator (knee detection + linear extrapolation)
+- [x] Implement sensor trend analysis (rolling stats, change-point detection, cross-sensor divergence)
+- [x] Implement health index composite (weighted anomaly + RUL)
+- [x] Model validation notebook with evaluation metrics
 
 ### Day 3: Tool Functions
-- [ ] Implement `sensor_history_lookup()` with PostgreSQL queries
-- [ ] Implement `anomaly_check()` wrapping the trained Isolation Forest
-- [ ] Implement `sensor_trend_analysis()`
-- [ ] Implement `rul_estimate()` wrapping the piecewise linear model
-- [ ] Implement `maintenance_scheduler()` with mock CMMS connector
-- [ ] Implement `fleet_summary()` aggregation
-- [ ] Unit tests for each tool function
+- [x] Implement `sensor_history_lookup()` with PostgreSQL queries
+- [x] Implement `anomaly_check()` wrapping the trained Isolation Forest
+- [x] Implement `sensor_trend_analysis()`
+- [x] Implement `rul_estimate()` wrapping the piecewise linear model
+- [x] Implement `maintenance_scheduler()` with mock CMMS connector
+- [x] Implement `fleet_summary()` aggregation
+- [x] Unit tests for each tool function
 
 ### Day 4: Memory Layer + Playbook System
 - [ ] Set up pgvector or ChromaDB for embedding storage

@@ -66,3 +66,4 @@ logs/
 # Local working notes (not committed)
 prompts/
 CLAUDE.md
+docs/dev_log/
