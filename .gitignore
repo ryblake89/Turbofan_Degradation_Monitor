@@ -63,5 +63,6 @@ logs/
 *.db
 *.sqlite3
 
-# Local prompts/working notes (not committed)
+# Local working notes (not committed)
 prompts/
+CLAUDE.md
