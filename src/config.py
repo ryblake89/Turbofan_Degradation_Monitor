@@ -44,6 +44,22 @@ KEY_SENSORS = [
     "sensor_15",  # BPR - Bypass ratio
 ]
 
+# Near-constant sensors excluded from modeling (CV < 0.001 in FD001 EDA)
+CONSTANT_SENSORS = [
+    "sensor_1", "sensor_5", "sensor_6", "sensor_10",
+    "sensor_16", "sensor_18", "sensor_19",
+]
+
 # All sensor columns
 ALL_SENSORS = [f"sensor_{i}" for i in range(1, 22)]
+
+# Informative sensors for Isolation Forest features (14 sensors, excluding constants)
+INFORMATIVE_SENSORS = [s for s in ALL_SENSORS if s not in CONSTANT_SENSORS]
+
 OP_SETTINGS = [f"op_setting_{i}" for i in range(1, 4)]
+
+# Model defaults
+HEALTHY_FRACTION = 0.30  # First 30% of each unit's life = healthy baseline
+IF_CONTAMINATION = 0.05  # Isolation Forest contamination parameter
+DEFAULT_WINDOW_SIZE = 20  # Rolling window for trend analysis
+EXPECTED_MEDIAN_LIFE = 199  # Median unit lifetime from EDA (cycles)
