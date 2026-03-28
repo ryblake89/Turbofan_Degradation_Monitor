@@ -21,6 +21,7 @@ DATABASE_URL = os.getenv(
 
 # Anthropic
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+AGENT_MODEL = os.getenv("AGENT_MODEL", "claude-haiku-4-5-20251001")
 
 # App
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
