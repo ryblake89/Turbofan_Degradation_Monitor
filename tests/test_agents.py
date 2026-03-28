@@ -4,6 +4,8 @@ Tests run against the live PostgreSQL database and the real Claude API (Haiku).
 Each test validates one of the three conversation flows end-to-end.
 """
 
+from unittest.mock import patch
+
 import pytest
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
@@ -226,3 +228,98 @@ class TestEdgeCases:
             "maintenance_request", "fleet_overview",
         )
         # Should not crash even if only one unit_id is extracted
+
+
+# ---- Graph enrichment ----
+
+class TestGraphEnrichment:
+    """Verify graph context is wired into agent responses."""
+
+    def test_status_check_has_graph_context(self, graph):
+        """Status check for an anomalous unit should include graph tools."""
+        result, _ = _run_graph(graph, "How is unit 7 doing?", thread_id="graph-status-7")
+
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        # FD001 units are end-of-life, so unit 7 should be anomalous
+        assert "graph_failure_modes" in tool_names
+        assert "graph_sensor_context" in tool_names
+
+        # graph_context state field should be populated
+        assert len(result.get("graph_context", [])) > 0
+
+    def test_maintenance_request_has_graph_context(self, graph):
+        """Maintenance request should include related units and maintenance history."""
+        config = {"configurable": {"thread_id": "graph-maint-14"}}
+        result = graph.invoke(
+            {"messages": [HumanMessage(content="Schedule maintenance on unit 14.")]},
+            config=config,
+        )
+
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        assert "graph_related_units" in tool_names
+        assert "graph_maintenance_history" in tool_names
+
+        # graph_context should have related_units and maintenance_history dicts
+        assert len(result.get("graph_context", [])) >= 2
+
+    def test_fleet_overview_no_graph_context(self, graph):
+        """Fleet overview should not include per-unit graph context."""
+        result, _ = _run_graph(
+            graph, "Give me a fleet overview.", thread_id="graph-fleet",
+        )
+
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        graph_tools = [t for t in tool_names if t.startswith("graph_")]
+        assert graph_tools == []
+
+    def test_neo4j_down_diagnostic_still_works(self, graph):
+        """If Neo4j is unreachable, diagnostic should still return sensor results."""
+        with patch(
+            "src.agents.diagnostic.graph_context_lookup",
+            side_effect=ConnectionError("Neo4j unavailable"),
+        ):
+            result, _ = _run_graph(
+                graph, "How is unit 7 doing?", thread_id="neo4j-down-diag",
+            )
+
+        # Sensor tools should still be present
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        assert "anomaly_check" in tool_names
+        assert "rul_estimate" in tool_names
+        assert "health_index" in tool_names
+
+        # Graph tools should be absent (Neo4j was down)
+        graph_tools = [t for t in tool_names if t.startswith("graph_")]
+        assert graph_tools == []
+
+        # Should still produce an AI response
+        ai_messages = [m for m in result["messages"] if m.type == "ai"]
+        assert len(ai_messages) >= 1
+        assert len(ai_messages[-1].content) > 20
+
+    def test_neo4j_down_ops_planning_still_works(self, graph):
+        """If Neo4j is unreachable, ops planning should still schedule maintenance."""
+        with patch(
+            "src.agents.diagnostic.graph_context_lookup",
+            side_effect=ConnectionError("Neo4j unavailable"),
+        ), patch(
+            "src.agents.ops_planning.graph_context_lookup",
+            side_effect=ConnectionError("Neo4j unavailable"),
+        ):
+            config = {"configurable": {"thread_id": "neo4j-down-ops"}}
+            result = graph.invoke(
+                {"messages": [HumanMessage(content="Schedule maintenance on unit 14.")]},
+                config=config,
+            )
+
+        # Core ops planning tools should still be present
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        assert "anomaly_check" in tool_names
+        assert "maintenance_scheduler" in tool_names
+
+        # Graph tools should be absent
+        graph_tools = [t for t in tool_names if t.startswith("graph_")]
+        assert graph_tools == []
+
+        # Should still have a pending action
+        assert result["pending_action"] is not None

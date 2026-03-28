@@ -19,12 +19,13 @@ from src.config import (
 logger = logging.getLogger(__name__)
 
 # Sensor pairs known to diverge during degradation (from EDA)
+# Labels follow Saxena et al. 2008 C-MAPSS documentation
 DIVERGENCE_PAIRS = [
-    ("sensor_11", "sensor_12"),  # HPC pressure & fuel flow ratio
-    ("sensor_4", "sensor_11"),   # HPC outlet temp & pressure
-    ("sensor_7", "sensor_12"),   # LPT outlet temp & fuel flow
-    ("sensor_2", "sensor_3"),    # Fan inlet & LPC outlet temp
-    ("sensor_4", "sensor_15"),   # HPC outlet temp & bypass ratio
+    ("sensor_11", "sensor_12"),  # Ps30 (HPC static pressure) & phi (fuel flow / Ps30)
+    ("sensor_4", "sensor_11"),   # T50 (LPT outlet temp) & Ps30 (HPC static pressure)
+    ("sensor_7", "sensor_12"),   # P30 (HPC total pressure) & phi (fuel flow / Ps30)
+    ("sensor_2", "sensor_3"),    # T24 (LPC outlet temp) & T30 (HPC outlet temp)
+    ("sensor_4", "sensor_15"),   # T50 (LPT outlet temp) & BPR (bypass ratio)
 ]
 
 

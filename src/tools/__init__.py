@@ -1,6 +1,7 @@
 """Tool functions for LangGraph agents."""
 
 from src.tools.fleet_tools import fleet_summary
+from src.tools.graph_tools import graph_context_lookup
 from src.tools.maintenance_tools import (
     approve_maintenance,
     maintenance_scheduler,
@@ -13,7 +14,6 @@ from src.tools.sensor_tools import (
     sensor_trend_analysis,
 )
 from src.memory.decision_trace import log_decision_trace
-from src.memory.playbook import playbook_retrieval
 
 __all__ = [
     "sensor_history_lookup",
@@ -24,6 +24,6 @@ __all__ = [
     "approve_maintenance",
     "reject_maintenance",
     "fleet_summary",
+    "graph_context_lookup",
     "log_decision_trace",
-    "playbook_retrieval",
 ]

@@ -182,6 +182,7 @@ def estimate_rul(readings: pd.DataFrame) -> dict:
     sensor_ruls = []
     degrading_sensors = []
     knee_indices = {}  # cache for bootstrap CI
+    sensor_detail = {}
 
     for sensor in KEY_SENSORS:
         if sensor not in readings.columns:
@@ -218,14 +219,28 @@ def estimate_rul(readings: pd.DataFrame) -> dict:
         # Estimate RUL from population degradation length and how far
         # through the degradation range the sensor has moved.
         # This is more robust than using unit-specific knee timing.
+        sensor_rul = None
         if degradation_pct > 0.10:
             remaining_frac = 1.0 - degradation_pct
-            rul_estimate = max(0, int(mean_deg_length * remaining_frac))
-            sensor_ruls.append(rul_estimate)
+            sensor_rul = max(0, int(mean_deg_length * remaining_frac))
+            sensor_ruls.append(sensor_rul)
         elif degradation_pct > 0.03:
             # Early degradation — mostly population baseline
             remaining_frac = 1.0 - degradation_pct
-            sensor_ruls.append(max(0, int(mean_deg_length * remaining_frac)))
+            sensor_rul = max(0, int(mean_deg_length * remaining_frac))
+            sensor_ruls.append(sensor_rul)
+
+        # Collect per-sensor detail for degrading sensors
+        if degradation_pct > 0.03:
+            sensor_detail[sensor] = {
+                "knee_cycle_index": int(knee),
+                "degradation_pct": float(degradation_pct),
+                "sensor_rul": sensor_rul if sensor_rul is not None else 0,
+                "baseline": float(baseline),
+                "threshold": float(threshold),
+                "current_smoothed": float(current_value),
+                "slope": float(profile["mean_slope"]),
+            }
 
     if not sensor_ruls:
         # No degradation detected — estimate from population baseline
@@ -239,6 +254,7 @@ def estimate_rul(readings: pd.DataFrame) -> dict:
             "degradation_stage": "healthy",
             "key_degrading_sensors": [],
             "model_type": "piecewise_linear",
+            "sensor_detail": {},
         }
 
     # Aggregate: use median of per-sensor RUL estimates (robust to outliers)
@@ -263,6 +279,7 @@ def estimate_rul(readings: pd.DataFrame) -> dict:
         "degradation_stage": stage,
         "key_degrading_sensors": degrading_sensors,
         "model_type": "piecewise_linear",
+        "sensor_detail": sensor_detail,
     }
 
 
@@ -333,3 +350,85 @@ def _bootstrap_ci(
     lower = int(np.percentile(bootstrap_ruls, alpha * 100))
     upper = int(np.percentile(bootstrap_ruls, (1 - alpha) * 100))
     return (max(0, lower), upper)
+
+
+def exponential_fit_quality(readings: pd.DataFrame) -> dict:
+    """Fit Saxena's h(t) = 1 - exp{a * t^b} to each degrading sensor.
+
+    For each key sensor with enough post-knee data, fits the exponential
+    degradation model and reports R² fit quality. This validates whether
+    observed degradation follows the physics predicted by Saxena et al. 2008.
+
+    Returns per-sensor fit results: a, b, R², and whether the fit is
+    "physics_consistent" (R² > 0.7).
+    """
+    from scipy.optimize import curve_fit
+
+    profiles = _load_profiles()
+    n_cycles = len(readings)
+    results = {}
+
+    def _saxena_model(t: np.ndarray, a: float, b: float) -> np.ndarray:
+        return 1.0 - np.exp(a * np.power(t, b))
+
+    for sensor in KEY_SENSORS:
+        if sensor not in readings.columns:
+            continue
+
+        profile = profiles[sensor]
+        values = readings[sensor].values
+        smoothed = pd.Series(values).rolling(window=10, min_periods=1).mean().values
+
+        knee = _detect_knee_point(smoothed)
+
+        # Skip if knee is near the end (not degrading)
+        if knee > n_cycles * 0.85:
+            continue
+
+        # Extract post-knee segment
+        post_knee = smoothed[knee:]
+        if len(post_knee) < 20:
+            continue
+
+        # Normalize to 0–1 using population baseline/threshold
+        baseline = profile["mean_healthy_baseline"]
+        threshold = profile["mean_threshold"]
+        total_range = threshold - baseline
+        if abs(total_range) < 1e-10:
+            continue
+
+        y = np.clip((post_knee - baseline) / total_range, 0.0, 1.0)
+
+        # Normalized time: 0 at knee, 1 at current cycle
+        t = np.linspace(0, 1, len(y))
+
+        try:
+            popt, _ = curve_fit(
+                _saxena_model,
+                t,
+                y,
+                p0=[-3.0, 1.5],
+                bounds=([-10.0, 0.5], [-0.1, 5.0]),
+                maxfev=2000,
+            )
+            a_fit, b_fit = popt
+
+            # Compute R²
+            y_pred = _saxena_model(t, a_fit, b_fit)
+            ss_res = np.sum((y - y_pred) ** 2)
+            ss_tot = np.sum((y - np.mean(y)) ** 2)
+            r_squared = 1.0 - (ss_res / ss_tot) if ss_tot > 1e-10 else 0.0
+            r_squared = float(np.clip(r_squared, 0.0, 1.0))
+
+            results[sensor] = {
+                "a": float(a_fit),
+                "b": float(b_fit),
+                "r_squared": r_squared,
+                "physics_consistent": r_squared > 0.7,
+                "n_points_fitted": len(y),
+            }
+        except (RuntimeError, ValueError):
+            # curve_fit failed to converge — skip this sensor
+            continue
+
+    return results

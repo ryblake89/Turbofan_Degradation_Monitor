@@ -81,6 +81,6 @@ def supervisor_node(state: dict) -> dict:
         "tool_results": [],
         "requires_approval": False,
         "pending_action": None,
-        "retrieved_playbooks": [],
+        "graph_context": [],
         "decision_trace": {},
     }

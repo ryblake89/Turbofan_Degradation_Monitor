@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from src.api.schemas import UnitStatusResponse
 from src.models.health_index import compute_health_index, health_label
-from src.tools.sensor_tools import anomaly_check, rul_estimate
+from src.tools.sensor_tools import anomaly_check, rul_estimate, sensor_history_lookup
 
 logger = logging.getLogger(__name__)
 
@@ -35,3 +35,15 @@ def unit_status(unit_id: int):
         anomaly=anomaly,
         rul=rul,
     )
+
+
+@router.get("/{unit_id}/sensors")
+def unit_sensors(unit_id: int, n_cycles: int = 50):
+    """Return sensor time series for a unit."""
+    try:
+        return sensor_history_lookup(unit_id, n_cycles)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.exception("Sensor history error for unit %d", unit_id)
+        raise HTTPException(status_code=503, detail=f"Service error: {e}")

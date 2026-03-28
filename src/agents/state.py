@@ -19,7 +19,7 @@ class AgentState(TypedDict):
         pending_action: Maintenance proposal awaiting HITL approval (None if no action pending).
         requires_approval: Whether the current flow is paused at the approval gate.
         decision_trace: Trace metadata (trace_id after logging, approval status during HITL).
-        retrieved_playbooks: Similar past cases from pgvector playbook retrieval.
+        graph_context: Knowledge graph context from Neo4j (failure modes, sensor context, related units).
     """
 
     # Conversation
@@ -37,4 +37,4 @@ class AgentState(TypedDict):
 
     # Memory
     decision_trace: dict
-    retrieved_playbooks: list[dict]
+    graph_context: list[dict]

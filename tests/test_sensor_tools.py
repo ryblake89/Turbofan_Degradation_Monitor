@@ -161,12 +161,56 @@ class TestRulEstimate:
         assert isinstance(result["key_degrading_sensors"], list)
         assert result["model_type"] == "piecewise_linear"
         assert isinstance(result["current_cycle"], int)
+        assert isinstance(result["sensor_detail"], dict)
+        assert isinstance(result["exponential_fit"], dict)
 
     def test_confidence_interval_bounds(self, known_unit_id):
         result = rul_estimate(known_unit_id)
         ci_lower, ci_upper = result["confidence_interval"]
         assert ci_lower <= ci_upper
         assert ci_lower >= 0
+
+    def test_sensor_detail_structure(self, known_unit_id):
+        result = rul_estimate(known_unit_id)
+        sensor_detail = result["sensor_detail"]
+
+        # Unit 1 is a run-to-failure engine — should have degrading sensors
+        if result["key_degrading_sensors"]:
+            assert len(sensor_detail) > 0
+
+        for sensor, detail in sensor_detail.items():
+            assert isinstance(detail["knee_cycle_index"], int)
+            assert detail["knee_cycle_index"] >= 0
+            assert 0.0 <= detail["degradation_pct"] <= 1.0
+            assert detail["sensor_rul"] >= 0
+            assert isinstance(detail["baseline"], float)
+            assert isinstance(detail["threshold"], float)
+            assert isinstance(detail["current_smoothed"], float)
+            assert isinstance(detail["slope"], float)
+
+    def test_exponential_fit_structure(self, known_unit_id):
+        result = rul_estimate(known_unit_id)
+        exp_fit = result["exponential_fit"]
+
+        # Unit 1 should have enough data for at least one fit
+        if result["key_degrading_sensors"]:
+            assert len(exp_fit) > 0
+
+        for sensor, fit in exp_fit.items():
+            assert isinstance(fit["a"], float)
+            assert isinstance(fit["b"], float)
+            assert 0.0 <= fit["r_squared"] <= 1.0
+            assert isinstance(fit["physics_consistent"], bool)
+            assert fit["n_points_fitted"] > 0
+
+    def test_healthy_unit_empty_detail(self):
+        """When no degradation is detected, sensor_detail and exponential_fit are empty."""
+        # Use a unit with very few cycles (early life) — unit 1 with full history
+        # will likely have degradation, so we test the structure consistency:
+        # if sensor_detail is empty, exponential_fit should also be empty.
+        result = rul_estimate(1)
+        if not result["sensor_detail"]:
+            assert result["exponential_fit"] == {}
 
     def test_invalid_unit_raises(self):
         with pytest.raises(ValueError, match="No sensor readings"):

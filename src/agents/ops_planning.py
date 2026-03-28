@@ -3,8 +3,8 @@
 import logging
 
 from src.memory.decision_trace import build_sensor_context
-from src.memory.playbook import playbook_retrieval
 from src.tools.fleet_tools import fleet_summary
+from src.tools.graph_tools import graph_context_lookup
 from src.tools.maintenance_tools import maintenance_scheduler
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ def ops_planning_node(state: dict) -> dict:
     health_result = _extract_tool_result(tool_results, "health_index")
     trend_result = _extract_tool_result(tool_results, "sensor_trend_analysis")
 
-    # Build sensor context for playbook retrieval
+    # Build sensor context for evidence
     health_index_val = health_result["health_index"] if health_result else None
     sensor_context = build_sensor_context(
         anomaly_result=anomaly_result,
@@ -62,12 +62,20 @@ def ops_planning_node(state: dict) -> dict:
         health_index=health_index_val,
     )
 
-    # Retrieve similar past cases
-    retrieved = []
+    # Query graph for similar units and their maintenance outcomes.
+    # Isolated try/except — Neo4j failures don't affect maintenance scheduling.
+    graph_results = []
     if unit_id is not None:
-        playbook_result = playbook_retrieval(unit_id, sensor_context)
-        tool_results.append({"tool": "playbook_retrieval", "result": playbook_result})
-        retrieved = playbook_result.get("similar_cases", [])
+        try:
+            related = graph_context_lookup(unit_id, "related_units")
+            tool_results.append({"tool": "graph_related_units", "result": related})
+            graph_results.append(related)
+
+            maint_hist = graph_context_lookup(unit_id, "maintenance_history")
+            tool_results.append({"tool": "graph_maintenance_history", "result": maint_hist})
+            graph_results.append(maint_hist)
+        except Exception:
+            logger.warning("Neo4j unavailable — skipping graph context for unit %s", unit_id)
 
     # Build evidence dict for the maintenance scheduler
     evidence = {
@@ -102,5 +110,5 @@ def ops_planning_node(state: dict) -> dict:
         "tool_results": tool_results,
         "requires_approval": True,
         "pending_action": maint_result,
-        "retrieved_playbooks": retrieved,
+        "graph_context": graph_results,
     }

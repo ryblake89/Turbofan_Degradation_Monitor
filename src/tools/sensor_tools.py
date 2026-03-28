@@ -16,7 +16,7 @@ from src.config import ALL_SENSORS, INFORMATIVE_SENSORS, KEY_SENSORS, OP_SETTING
 from src.data.database import engine
 from src.models.anomaly_detector import score_window
 from src.models.health_index import compute_health_index
-from src.models.rul_estimator import estimate_rul
+from src.models.rul_estimator import estimate_rul, exponential_fit_quality
 from src.models.trend_analyzer import analyze_trends
 
 logger = logging.getLogger(__name__)
@@ -217,6 +217,9 @@ def rul_estimate(unit_id: int) -> dict:
     _validate_unit(df, unit_id)
 
     result = estimate_rul(df)
+
+    # Add exponential fit quality assessment
+    result["exponential_fit"] = exponential_fit_quality(df)
 
     return {
         "unit_id": unit_id,
