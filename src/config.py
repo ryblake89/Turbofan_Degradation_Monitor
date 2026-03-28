@@ -23,6 +23,11 @@ DATABASE_URL = os.getenv(
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 AGENT_MODEL = os.getenv("AGENT_MODEL", "claude-haiku-4-5-20251001")
 
+# Neo4j
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "turbofan_dev")
+
 # App
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 DEV_MODE = os.getenv("DEV_MODE", "true").lower() == "true"
@@ -34,12 +39,13 @@ CMAPSS_COLUMNS = (
     + [f"sensor_{i}" for i in range(1, 22)]
 )
 
-# Key informative sensors (per published analyses)
+# Key informative sensors (per published analyses + EDA variance selection)
+# Labels follow Saxena et al. 2008 C-MAPSS documentation
 KEY_SENSORS = [
-    "sensor_2",   # T2 - Total temperature at fan inlet
-    "sensor_3",   # T24 - Total temperature at LPC outlet
-    "sensor_4",   # T30 - Total temperature at HPC outlet
-    "sensor_7",   # T50 - Total temperature at LPT outlet
+    "sensor_2",   # T24 - Total temperature at LPC outlet
+    "sensor_3",   # T30 - Total temperature at HPC outlet
+    "sensor_4",   # T50 - Total temperature at LPT outlet
+    "sensor_7",   # P30 - Total pressure at HPC outlet
     "sensor_11",  # Ps30 - Static pressure at HPC outlet
     "sensor_12",  # phi - Fuel flow / Ps30
     "sensor_15",  # BPR - Bypass ratio
