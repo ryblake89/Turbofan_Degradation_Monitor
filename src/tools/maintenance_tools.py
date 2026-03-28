@@ -115,6 +115,16 @@ def approve_maintenance(log_id: int, approved_by: str = "operator") -> dict:
 
     Updates the maintenance_log row to status='approved' and records
     who approved it and when.
+
+    Args:
+        log_id: ID of the maintenance_log row (from maintenance_scheduler).
+        approved_by: Identifier of the approver (default "operator").
+
+    Returns:
+        Dict with log_id, unit_id, action_type, urgency, status, updated_by, updated_at.
+
+    Raises:
+        ValueError: If no pending entry exists for the given log_id.
     """
     return _update_maintenance_status(log_id, "approved", approved_by)
 
@@ -123,6 +133,16 @@ def reject_maintenance(log_id: int, approved_by: str = "operator") -> dict:
     """Reject a pending maintenance proposal.
 
     Updates the maintenance_log row to status='rejected'.
+
+    Args:
+        log_id: ID of the maintenance_log row (from maintenance_scheduler).
+        approved_by: Identifier of the rejector (default "operator").
+
+    Returns:
+        Dict with log_id, unit_id, action_type, urgency, status, updated_by, updated_at.
+
+    Raises:
+        ValueError: If no pending entry exists for the given log_id.
     """
     return _update_maintenance_status(log_id, "rejected", approved_by)
 

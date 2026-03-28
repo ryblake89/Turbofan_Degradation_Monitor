@@ -41,7 +41,11 @@ def compute_health_index(
 
 
 def health_label(score: float) -> str:
-    """Convert a health index score to a human-readable label."""
+    """Convert a health index score to a human-readable label.
+
+    Returns one of: "healthy" (>=80), "degrading" (>=50), "critical" (>=25),
+    or "near_failure" (<25).
+    """
     if score >= 80:
         return "healthy"
     elif score >= 50:

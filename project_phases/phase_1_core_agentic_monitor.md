@@ -2,7 +2,7 @@
 
 **Timeline:** ~9 days
 **Priority:** Highest — closes the agentic systems gap across multiple target roles
-**Status:** In Progress — Day 1 complete
+**Status:** In Progress — Days 1-4 complete
 
 ---
 
@@ -542,7 +542,7 @@ GET  /costs/summary     # Token usage and cost tracking
 - [x] Implement health index composite (weighted anomaly + RUL)
 - [x] Model validation notebook with evaluation metrics
 
-### Day 3: Tool Functions
+### Day 3: Tool Functions ✅
 - [x] Implement `sensor_history_lookup()` with PostgreSQL queries
 - [x] Implement `anomaly_check()` wrapping the trained Isolation Forest
 - [x] Implement `sensor_trend_analysis()`
@@ -551,38 +551,39 @@ GET  /costs/summary     # Token usage and cost tracking
 - [x] Implement `fleet_summary()` aggregation
 - [x] Unit tests for each tool function
 
-### Day 4: Memory Layer + Playbook System
-- [ ] Set up pgvector or ChromaDB for embedding storage
-- [ ] Implement `decision_trace` logging (capture full tool call chain + context)
-- [ ] Implement `playbook_retrieval()` with semantic similarity search
-- [ ] Seed initial playbooks from synthetic historical decisions
-- [ ] Test retrieval quality: do similar sensor patterns return relevant past cases?
+### Day 4: Memory Layer + Playbook System ✅
+- [x] Set up pgvector for embedding storage (HNSW index on decision_traces)
+- [x] Implement `decision_trace` logging (capture full tool call chain + context)
+- [x] Implement `playbook_retrieval()` with semantic similarity search
+- [x] Seed initial playbooks from synthetic historical decisions (27 traces, lifecycle-varied)
+- [x] Test retrieval quality: similar sensor patterns return relevant past cases (22 tests)
 
-### Day 5-6: LangGraph Multi-Agent System
-- [ ] Define `AgentState` schema
-- [ ] Implement supervisor agent (intent classification + routing)
-- [ ] Implement diagnostic agent (tool selection + execution)
-- [ ] Implement operations planning agent (maintenance + fleet tools)
-- [ ] Implement response generator node
-- [ ] Implement approval gate (HITL pause/resume)
-- [ ] Implement action executor node
-- [ ] Wire up the full state graph with conditional edges
-- [ ] Integration tests: run through all conversation flow examples
+### Day 5: LangGraph Multi-Agent System ✅
+- [x] Define `AgentState` schema
+- [x] Implement supervisor agent (intent classification + routing)
+- [x] Implement diagnostic agent (tool selection + execution)
+- [x] Implement operations planning agent (maintenance + fleet tools)
+- [x] Implement response generator node
+- [x] Implement approval gate (HITL pause/resume)
+- [x] Implement action executor node
+- [x] Wire up the full state graph with conditional edges
+- [x] Integration tests: run through all conversation flow examples (6 tests, all passing)
 
-### Day 7: FastAPI + End-to-End
-- [ ] FastAPI app structure
-- [ ] Chat endpoint with session management
-- [ ] REST endpoints for direct tool access
-- [ ] Docker Compose: PostgreSQL + FastAPI + agent
-- [ ] End-to-end testing: full conversation flows through the API
+### Day 6: FastAPI + End-to-End ✅
+- [x] FastAPI app structure (`src/api/` — app, schemas, session, 6 route modules)
+- [x] Chat endpoint with session management (POST /chat, POST /chat/{session_id}/approve)
+- [x] REST endpoints for direct tool access (units, fleet, maintenance, traces, health)
+- [x] Docker Compose: PostgreSQL + FastAPI + agent (Dockerfile + api service)
+- [x] End-to-end testing: full conversation flows through the API (16 tests, 78 total)
 
-### Day 8: Testing + Hardening
-- [ ] Edge cases: ambiguous queries, units with no data, multi-step flows
-- [ ] Error handling: graceful failures when tools return unexpected results
-- [ ] Decision trace completeness: verify every interaction is logged
-- [ ] Approval flow: test approve, reject, and modify paths
+### Day 7: Testing + Hardening ✅
+- [x] Edge cases: ambiguous queries, units with no data, multi-step flows (8 new edge case tests)
+- [x] Error handling: graceful failures when tools return unexpected results (4 agent nodes + 6 API routes hardened)
+- [x] Decision trace completeness: verify every interaction is logged (5 trace completeness tests)
+- [x] Approval flow: test approve, reject, and modify paths (4 approval hardening tests)
+- [x] 102 tests total (24 new), all passing
 
-### Day 9: Polish + Documentation
+### Day 8: Polish + Documentation
 - [ ] README with architecture diagram
 - [ ] Screen recording of demo interaction
 - [ ] Code cleanup and docstrings on public interfaces
