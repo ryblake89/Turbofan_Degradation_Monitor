@@ -12,6 +12,8 @@ from src.tools.sensor_tools import (
     sensor_history_lookup,
     sensor_trend_analysis,
 )
+from src.memory.decision_trace import log_decision_trace
+from src.memory.playbook import playbook_retrieval
 
 __all__ = [
     "sensor_history_lookup",
@@ -22,4 +24,6 @@ __all__ = [
     "approve_maintenance",
     "reject_maintenance",
     "fleet_summary",
+    "log_decision_trace",
+    "playbook_retrieval",
 ]

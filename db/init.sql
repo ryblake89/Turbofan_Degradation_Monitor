@@ -72,3 +72,5 @@ CREATE INDEX idx_maintenance_unit ON maintenance_log(unit_id);
 CREATE INDEX idx_maintenance_status ON maintenance_log(status);
 CREATE INDEX idx_anomaly_unit ON anomaly_events(unit_id);
 CREATE INDEX idx_traces_unit ON decision_traces(unit_id);
+CREATE INDEX idx_traces_embedding ON decision_traces
+    USING hnsw (embedding vector_cosine_ops);
