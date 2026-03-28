@@ -117,6 +117,37 @@ class TestSensorTrendAnalysis:
             sensor_trend_analysis(9999)
 
 
+class TestAnomalyCheckEdgeCases:
+    """Edge cases for anomaly_check."""
+
+    def test_unit_zero_raises(self):
+        with pytest.raises(ValueError, match="No sensor readings"):
+            anomaly_check(0)
+
+    def test_unit_101_raises(self):
+        with pytest.raises(ValueError, match="No sensor readings"):
+            anomaly_check(101)
+
+    def test_negative_unit_raises(self):
+        with pytest.raises(ValueError, match="No sensor readings"):
+            anomaly_check(-1)
+
+
+class TestSensorTrendEdgeCases:
+    """Edge cases for sensor_trend_analysis."""
+
+    def test_window_size_one(self, known_unit_id):
+        """Window size 1 should not crash — rolling stats may be NaN but result should return."""
+        result = sensor_trend_analysis(known_unit_id, window_size=1)
+        assert result["unit_id"] == known_unit_id
+
+    def test_window_size_two(self, known_unit_id):
+        """Minimal viable window for rolling stats."""
+        result = sensor_trend_analysis(known_unit_id, window_size=2)
+        assert result["unit_id"] == known_unit_id
+        assert "rolling_features" in result
+
+
 class TestRulEstimate:
     def test_returns_correct_structure(self, known_unit_id):
         result = rul_estimate(known_unit_id)
