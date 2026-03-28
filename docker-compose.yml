@@ -22,5 +22,21 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build: .
+    container_name: turbofan_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://turbofan:turbofan_dev@db:5432/turbofan
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./models:/app/models
+
 volumes:
   pgdata:
