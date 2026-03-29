@@ -61,7 +61,7 @@ function HeroSection() {
         Turbofan Degradation Monitor
       </h2>
       <p className="text-lg text-muted-foreground mt-1">
-        Multi-agent AI system for predictive maintenance of turbofan engines
+        Multi-agent AI system for predictive maintenance of run-to-failure turbofan engines
       </p>
     </div>
   );
@@ -153,7 +153,8 @@ function DataSection() {
               <h3 className="text-lg font-bold text-foreground">About</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The Commercial Modular Aero-Propulsion System Simulation (C-MAPSS) is a
-                NASA-developed turbofan engine simulator used to generate run-to-failure
+                NASA-developed turbofan engine simulator used to generate{" "}
+                <strong className="text-red-400">run-to-failure</strong>{" "}
                 degradation data. FD001 is the benchmark dataset from the 2008 PHM data
                 challenge: 100 engines, each running from healthy to failure under a
                 single operating condition with a single fault mode (HPC degradation).

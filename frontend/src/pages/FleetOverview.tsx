@@ -69,7 +69,7 @@ export default function FleetOverview() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Fleet Overview</h2>
         <p className="text-sm text-muted-foreground">
-          Real-time health monitoring across all 100 turbofan units
+          Real-time health monitoring across all 100 <strong className="text-red-400">failing</strong> turbofan units
         </p>
       </div>
 
