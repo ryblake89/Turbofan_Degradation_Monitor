@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronRight, Info, TrendingUp, TrendingDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, ChevronLeft, ChevronDown, ChevronRight, Info, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,13 @@ function DegradationPhysics({ flaggedSensors }: { flaggedSensors: string[] }) {
 
 export default function UnitDetail() {
   const { unitId } = useParams<{ unitId: string }>();
+  const navigate = useNavigate();
   const id = Number(unitId);
+  const [inputValue, setInputValue] = useState(String(id));
+
+  useEffect(() => {
+    setInputValue(String(id));
+  }, [id]);
 
   const status = useUnitStatus(id);
   const sensors = useUnitSensors(id, 999);
@@ -159,6 +165,47 @@ export default function UnitDetail() {
             </span>
           </>
         ) : null}
+      </div>
+
+      {/* Unit Switcher */}
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => { if (id > 1) navigate(`/units/${id - 1}`); }}
+          disabled={id <= 1}
+          className="p-1 rounded-md border border-border hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Unit</span>
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const n = parseInt(inputValue, 10);
+                if (n >= 1 && n <= 100) navigate(`/units/${n}`);
+              }
+            }}
+            onBlur={() => {
+              const n = parseInt(inputValue, 10);
+              if (n >= 1 && n <= 100) navigate(`/units/${n}`);
+              else setInputValue(String(id));
+            }}
+            className="w-12 text-center text-sm font-mono bg-muted border border-border rounded-md px-1 py-0.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+          <span className="text-xs text-muted-foreground">of 100</span>
+        </div>
+        <button
+          onClick={() => { if (id < 100) navigate(`/units/${id + 1}`); }}
+          disabled={id >= 100}
+          className="p-1 rounded-md border border-border hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
 
       {/* Health summary cards */}
