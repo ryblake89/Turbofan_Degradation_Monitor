@@ -1101,7 +1101,7 @@ function TechStackSection() {
       items: [
         {
           tech: "LangGraph ≥0.2.62",
-          role: "7-node agent graph with conditional routing, state checkpointing, HITL interrupt() for approval gates",
+          role: "9-node agent graph with conditional routing, state checkpointing, HITL interrupt() for approval gates",
         },
         {
           tech: "Anthropic Claude API (Claude 3.5 Haiku)",
