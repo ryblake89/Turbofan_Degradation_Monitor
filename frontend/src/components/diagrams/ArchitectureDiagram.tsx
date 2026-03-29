@@ -73,6 +73,8 @@ export default function ArchitectureDiagram() {
     "Supervisor",
     "Diagnostic",
     "Ops Planning",
+    "Comparison",
+    "General Assistant",
     "Approval Gate",
     "Action Executor",
     "Response Gen",
