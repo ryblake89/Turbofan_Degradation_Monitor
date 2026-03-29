@@ -88,14 +88,14 @@ export default function AgentFlowDiagram() {
         {/* Supervisor */}
         <Node
           label="Supervisor"
-          sub="Claude structured output → intent + unit_id"
+          sub="Claude structured output → intent (6 types) + unit_id(s)"
           color="#a78bfa"
         />
         <DownArrow />
         <Diamond label="active_agent?" color="#a78bfa" />
 
-        {/* Branch: Diagnostic / Ops Planning */}
-        <div className="flex items-start gap-12 mt-1">
+        {/* Branch: Diagnostic / Ops Planning / Comparison / General */}
+        <div className="flex items-start gap-8 mt-1">
           {/* Diagnostic branch */}
           <div className="flex flex-col items-center">
             <EdgeLabel>diagnostic</EdgeLabel>
@@ -127,7 +127,7 @@ export default function AgentFlowDiagram() {
             <DownArrow />
             <Node
               label="Ops Planning"
-              sub="fleet_summary OR maintenance_scheduler + graph_related_units + graph_maintenance_history"
+              sub="fleet_summary OR maintenance_scheduler + graph queries"
               color="#fbbf24"
             />
             <DownArrow />
@@ -174,6 +174,32 @@ export default function AgentFlowDiagram() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Comparison branch */}
+          <div className="flex flex-col items-center">
+            <EdgeLabel>comparison</EdgeLabel>
+            <DownArrow />
+            <Node
+              label="Comparison"
+              sub="per-unit diagnostics + comparison summary with deltas"
+              color="#c084fc"
+            />
+            <DownArrow />
+            <div className="text-[10px] text-muted-foreground">↓ to Response Gen</div>
+          </div>
+
+          {/* General Assistant branch */}
+          <div className="flex flex-col items-center">
+            <EdgeLabel>general_assistant</EdgeLabel>
+            <DownArrow />
+            <Node
+              label="General Assistant"
+              sub="Claude bind_tools() — LLM picks tools or answers directly"
+              color="#fb923c"
+            />
+            <DownArrow />
+            <div className="text-[10px] text-muted-foreground">↓ to Response Gen</div>
           </div>
         </div>
 

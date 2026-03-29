@@ -70,7 +70,7 @@ function HeroSection() {
 const HERO_STATS = [
   { label: "100 Engines", detail: "NASA C-MAPSS run-to-failure", color: "#22d3ee" },
   { label: "21 Sensors", detail: "Temperature, pressure, speed, flow", color: "#34d399" },
-  { label: "7 AI Agents", detail: "LangGraph orchestration with HITL", color: "#a78bfa" },
+  { label: "9 AI Agents", detail: "LangGraph orchestration with HITL", color: "#a78bfa" },
   { label: "7 Node Types", detail: "Neo4j industrial ontology", color: "#fbbf24" },
   { label: "Full Traces", detail: "pgvector-embedded, every tool call logged", color: "#60a5fa" },
 ] as const;
@@ -134,12 +134,15 @@ function DataSection() {
               <h3 className="text-lg font-bold text-foreground">How This System Works</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The system uses Claude's structured output to extract intent and unit
-                ID, classifying into 4 types: status_check, anomaly_investigation,
-                maintenance_request, fleet_overview. Then, it routes to specialized
-                diagnostic or operations planning agents. Each agent executes ML tools
-                (anomaly detection, RUL estimation, trend analysis), queries a Neo4j
-                knowledge graph for failure modes and asset context, and returns
-                structured recommendations with full evidence.
+                IDs, classifying into 6 types: status_check, anomaly_investigation,
+                maintenance_request, fleet_overview, unit_comparison, and general.
+                Deterministic paths route to specialized diagnostic, operations
+                planning, or comparison agents. A general assistant uses Claude's
+                native tool_use for LLM-driven tool selection on novel questions.
+                Each agent executes ML tools (anomaly detection, RUL estimation,
+                trend analysis), queries a Neo4j knowledge graph for failure modes
+                and asset context, and returns structured recommendations with full
+                evidence.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The agent graph pauses at an approval gate and resumes with the
@@ -596,14 +599,15 @@ function ArchitectureSection() {
                       Supervisor
                     </td>
                     <td className="py-2 pr-3">
-                      Intent classification (4 types), unit extraction
+                      Intent classification (6 types), unit extraction
                     </td>
                     <td className="py-2 pr-3">
-                      Claude structured output → routes to diagnostic or ops
-                      planning
+                      Claude structured output → routes to diagnostic, ops
+                      planning, comparison, or general assistant
                     </td>
                     <td className="py-2 font-mono text-xs">
-                      → current_intent, active_agent, current_unit_id
+                      → current_intent, active_agent, current_unit_id,
+                      comparison_unit_ids
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -662,6 +666,36 @@ function ArchitectureSection() {
                     </td>
                     <td className="py-2 font-mono text-xs">
                       → decision_trace (action outcome)
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-3 font-medium text-foreground">
+                      Comparison
+                    </td>
+                    <td className="py-2 pr-3">
+                      Multi-unit side-by-side analysis
+                    </td>
+                    <td className="py-2 pr-3">
+                      anomaly_check, rul_estimate, health_index per unit +
+                      graph_related_units + comparison summary with deltas
+                    </td>
+                    <td className="py-2 font-mono text-xs">
+                      → tool_results, graph_context
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 pr-3 font-medium text-foreground">
+                      General Assistant
+                    </td>
+                    <td className="py-2 pr-3">
+                      LLM-driven tool selection for novel questions
+                    </td>
+                    <td className="py-2 pr-3">
+                      Claude <code>bind_tools()</code> — 5 read-only tools
+                      whitelisted, or direct domain knowledge response
+                    </td>
+                    <td className="py-2 font-mono text-xs">
+                      → tool_results, general_tool_calls
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -1206,7 +1240,7 @@ function TechStackSection() {
         </div>
 
         <p className="text-xs text-muted-foreground border-t border-border pt-3">
-          System scope: 7 agent nodes &middot; 9 tool functions &middot; 6 API
+          System scope: 9 agent nodes &middot; 9 tool functions &middot; 6 API
           route groups &middot; 5 Neo4j query types &middot; 4 ML models
           &middot; 5 dashboard pages
         </p>
@@ -1250,7 +1284,7 @@ const DECISIONS = [
   {
     title: "Structured Output for Intent Classification, Not Prompt-and-Parse",
     chosen:
-      "Claude structured output with a Pydantic schema returning {intent, unit_id}",
+      "Claude structured output with a Pydantic schema returning {intent, unit_id, unit_ids}",
     rejected: "Regex parsing of free-text LLM output, keyword matching",
     why: "Structured output guarantees type-safe routing — the supervisor's output is a validated object, not a string to be interpreted. Eliminates an entire class of parsing bugs.",
     implication:
