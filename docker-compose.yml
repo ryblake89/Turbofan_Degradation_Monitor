@@ -59,6 +59,7 @@ services:
         condition: service_healthy
     volumes:
       - ./models:/app/models
+      - ./data:/app/data
 
   frontend:
     build: ./frontend

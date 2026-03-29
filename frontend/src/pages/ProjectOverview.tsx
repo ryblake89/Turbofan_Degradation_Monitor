@@ -119,35 +119,50 @@ function DataSection() {
               ))}
             </div>
 
-            {/* Overview paragraph */}
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              A maintenance engineer asks natural language questions about fleet
-              health. The system uses Claude structured output to extract intent
-              and unit ID (classifying into 4 types: status_check,
-              anomaly_investigation, maintenance_request, fleet_overview), then
-              routes to specialized diagnostic or operations planning agents.
-              Each agent executes ML tools (anomaly detection, RUL estimation,
-              trend analysis), queries a Neo4j knowledge graph for failure modes
-              and asset context, and returns structured recommendations with
-              full evidence. Maintenance proposals require human approval before
-              execution — the agent graph pauses at an approval gate and resumes
-              with the operator's decision. Every interaction is logged as an
-              immutable decision trace with pgvector embeddings for future
-              similarity retrieval.
-            </p>
+            {/* Purpose */}
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-bold text-foreground">Purpose</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Enable maintenance engineers to ask natural-language questions about
+                fleet health and receive structured, evidence-backed recommendations
+                that require human approval before any action is taken.
+              </p>
+            </div>
 
-            {/* C-MAPSS description */}
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              The Commercial Modular Aero-Propulsion System Simulation (C-MAPSS)
-              is a NASA-developed turbofan engine simulator used to generate
-              run-to-failure degradation data. FD001 is the benchmark dataset
-              from the 2008 PHM data challenge — 100 engines, each running from
-              healthy to failure under a single operating condition with a
-              single fault mode (HPC degradation). Most research treats it as a
-              prediction problem. This project treats it as an operational
-              monitoring problem — building a system around the data rather than
-              just a model.
-            </p>
+            {/* How This System Works */}
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-bold text-foreground">How This System Works</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The system uses Claude's structured output to extract intent and unit
+                ID, classifying into 4 types: status_check, anomaly_investigation,
+                maintenance_request, fleet_overview. Then, it routes to specialized
+                diagnostic or operations planning agents. Each agent executes ML tools
+                (anomaly detection, RUL estimation, trend analysis), queries a Neo4j
+                knowledge graph for failure modes and asset context, and returns
+                structured recommendations with full evidence.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Because maintenance proposals require human approval before execution,
+                the agent graph pauses at an approval gate and resumes with the
+                operator's decision. Every interaction is logged as an immutable
+                decision trace with pgvector embeddings for future similarity retrieval.
+              </p>
+            </div>
+
+            {/* About */}
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-bold text-foreground">About</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The Commercial Modular Aero-Propulsion System Simulation (C-MAPSS) is a
+                NASA-developed turbofan engine simulator used to generate run-to-failure
+                degradation data. FD001 is the benchmark dataset from the 2008 PHM data
+                challenge: 100 engines, each running from healthy to failure under a
+                single operating condition with a single fault mode (HPC degradation).
+                Most research treats it as a prediction problem. This project treats it
+                as an operational monitoring problem, building a system around the data
+                rather than just a model.
+              </p>
+            </div>
           </div>
 
           {/* Engine diagram */}
