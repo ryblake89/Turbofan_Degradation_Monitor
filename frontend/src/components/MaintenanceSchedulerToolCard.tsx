@@ -37,7 +37,7 @@ interface WorkOrderDraft {
 }
 
 export default function MaintenanceSchedulerToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [woExpanded, setWoExpanded] = useState(false);
 
   const unitId = result.unit_id as number | undefined;

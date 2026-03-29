@@ -96,7 +96,8 @@ export function useAgentChat(): UseAgentChatReturn {
         content: res.response,
         intent: res.intent,
         unit_id: res.unit_id,
-        tool_results: res.tool_results,
+        // Omit tool_results — diagnostic cards were already shown in the
+        // proposal message; repeating them after approval adds noise.
         trace_id: res.trace_id,
         timestamp: new Date(),
       };

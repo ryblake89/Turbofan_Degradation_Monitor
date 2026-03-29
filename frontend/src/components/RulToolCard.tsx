@@ -39,7 +39,7 @@ interface ExpFitEntry {
 }
 
 export default function RulToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const unitId = result.unit_id as number | undefined;
   const currentCycle = result.current_cycle as number | undefined;

@@ -1,17 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PriorityUnit } from "@/types";
+import { healthBgColor } from "@/lib/health";
 
 interface Props {
   units: PriorityUnit[];
   isLoading: boolean;
-}
-
-function healthColor(health: number): string {
-  if (health >= 60) return "bg-emerald-600 hover:bg-emerald-500";
-  if (health >= 30) return "bg-amber-600 hover:bg-amber-500";
-  if (health >= 15) return "bg-red-600 hover:bg-red-500";
-  return "bg-red-800 hover:bg-red-700";
 }
 
 export default function FleetHeatmap({ units, isLoading }: Props) {
@@ -51,8 +45,8 @@ export default function FleetHeatmap({ units, isLoading }: Props) {
       <CardHeader>
         <CardTitle className="text-lg">Fleet Health Heatmap</CardTitle>
         <p className="text-xs text-muted-foreground">
-          Click a unit to view details. Color: green (&gt;60) / amber (30-60) /
-          red (&lt;30)
+          Click a unit to view details. Color: green (&ge;80) / amber (50–79) /
+          red (&lt;50)
         </p>
       </CardHeader>
       <CardContent>
@@ -65,7 +59,7 @@ export default function FleetHeatmap({ units, isLoading }: Props) {
               <button
                 key={unitId}
                 onClick={() => navigate(`/units/${unitId}`)}
-                className={`aspect-square rounded-sm flex flex-col items-center justify-center text-xs cursor-pointer transition-colors text-white ${healthColor(health)}`}
+                className={`aspect-square rounded-sm flex flex-col items-center justify-center text-xs cursor-pointer transition-colors text-white ${healthBgColor(health)}`}
                 title={
                   unit
                     ? `Unit ${unitId}: Health ${health.toFixed(1)}, RUL ${unit.estimated_rul}, ${unit.degradation_stage}`

@@ -11,20 +11,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { PriorityUnit } from "@/types";
+import { healthBadgeVariant } from "@/lib/health";
 
 interface Props {
   units: PriorityUnit[];
   isLoading: boolean;
-}
-
-function healthBadge(label: string) {
-  const variant =
-    label === "healthy"
-      ? "outline"
-      : label === "degrading"
-        ? "secondary"
-        : "destructive";
-  return <Badge variant={variant}>{label}</Badge>;
 }
 
 export default function AlertList({ units, isLoading }: Props) {
@@ -78,7 +69,7 @@ export default function AlertList({ units, isLoading }: Props) {
                 <TableCell className="font-mono">
                   {unit.health_index.toFixed(1)}
                 </TableCell>
-                <TableCell>{healthBadge(unit.health_label)}</TableCell>
+                <TableCell><Badge variant={healthBadgeVariant(unit.health_label)}>{unit.health_label}</Badge></TableCell>
                 <TableCell className="font-mono">
                   {unit.estimated_rul}
                 </TableCell>

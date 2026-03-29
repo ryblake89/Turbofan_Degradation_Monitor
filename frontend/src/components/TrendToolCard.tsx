@@ -40,7 +40,7 @@ interface ChangePoint {
 }
 
 export default function TrendToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const trendSummary = (result.trend_summary as string) ?? "stable";
   const rollingFeatures = result.rolling_features as Record<string, RollingFeature> | undefined;

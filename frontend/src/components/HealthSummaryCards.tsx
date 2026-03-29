@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { FleetSummaryResponse } from "@/types";
 import { Activity, AlertTriangle, TrendingDown, CheckCircle } from "lucide-react";
+import { healthTextColor } from "@/lib/health";
 
 interface Props {
   data: FleetSummaryResponse | undefined;
@@ -41,12 +42,7 @@ export default function HealthSummaryCards({ data, isLoading }: Props) {
       title: "Fleet Health Avg",
       value: data ? `${data.fleet_health_avg.toFixed(1)}/100` : undefined,
       icon: Activity,
-      color:
-        data && data.fleet_health_avg >= 60
-          ? "text-emerald-500"
-          : data && data.fleet_health_avg >= 30
-            ? "text-amber-500"
-            : "text-red-500",
+      color: data ? healthTextColor(data.fleet_health_avg) : "text-foreground",
     },
   ];
 

@@ -18,7 +18,7 @@ interface FailureMode {
 }
 
 export default function FailureModesToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const modes = (result.matched_failure_modes as FailureMode[]) ?? [];
   const sorted = [...modes].sort((a, b) => (b.match_strength ?? 0) - (a.match_strength ?? 0));

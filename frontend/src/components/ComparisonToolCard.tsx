@@ -2,20 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 
-function healthColor(label: string) {
-  switch (label) {
-    case "healthy":
-      return { text: "text-emerald-400", bg: "bg-emerald-500/15 border-emerald-500/30" };
-    case "degrading":
-      return { text: "text-amber-400", bg: "bg-amber-500/15 border-amber-500/30" };
-    case "critical":
-      return { text: "text-red-400", bg: "bg-red-500/15 border-red-500/30" };
-    case "near_failure":
-      return { text: "text-red-500", bg: "bg-red-600/20 border-red-500/40" };
-    default:
-      return { text: "text-muted-foreground", bg: "bg-muted border-border" };
-  }
-}
+import { healthLabelColors } from "@/lib/health";
 
 interface UnitMetrics {
   health_index: number | null;
@@ -34,7 +21,7 @@ interface ComparisonResult {
 }
 
 export default function ComparisonToolCard({ result }: { result: ComparisonResult }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const unitIds = result.unit_ids ?? [];
   const units = result.units ?? {};
 
@@ -74,7 +61,7 @@ export default function ComparisonToolCard({ result }: { result: ComparisonResul
             {unitIds.map((uid) => {
               const u = units[uid];
               if (!u) return null;
-              const colors = healthColor(u.health_label ?? "");
+              const colors = healthLabelColors(u.health_label ?? "");
               const isWorst = uid === worstUnit && unitIds.length > 1;
 
               return (

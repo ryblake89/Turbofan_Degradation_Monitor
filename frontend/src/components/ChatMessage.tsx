@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, User, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ToolCallCard from "@/components/ToolCallCard";
 import RulToolCard from "@/components/RulToolCard";
@@ -17,6 +17,23 @@ import ComparisonToolCard from "@/components/ComparisonToolCard";
 import DirectResponseCard from "@/components/DirectResponseCard";
 import ApprovalCard from "@/components/ApprovalCard";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useAgentChat";
+
+export const TOOL_CARD_REGISTRY: Record<
+  string,
+  React.ComponentType<{ result: Record<string, unknown> }>
+> = {
+  rul_estimate: RulToolCard,
+  anomaly_check: AnomalyToolCard,
+  health_index: HealthIndexToolCard,
+  sensor_trend_analysis: TrendToolCard,
+  graph_failure_modes: FailureModesToolCard,
+  graph_sensor_context: SensorContextToolCard,
+  graph_related_units: RelatedUnitsToolCard,
+  graph_maintenance_history: MaintenanceHistoryToolCard,
+  maintenance_scheduler: MaintenanceSchedulerToolCard,
+  unit_comparison_summary: ComparisonToolCard as React.ComponentType<{ result: Record<string, unknown> }>,
+  direct_knowledge_response: DirectResponseCard as React.ComponentType<{ result: Record<string, unknown> }>,
+};
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -34,8 +51,8 @@ export default function ChatMessage({
   if (message.role === "user") {
     return (
       <div className="flex gap-3">
-        <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-          Y
+        <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 mt-0.5">
+          <User className="h-3.5 w-3.5" />
         </div>
         <div className="space-y-1 min-w-0">
           <span className="text-xs font-medium text-muted-foreground">You</span>
@@ -48,8 +65,8 @@ export default function ChatMessage({
   // Assistant message
   return (
     <div className="flex gap-3">
-      <div className="h-7 w-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-        A
+      <div className="h-7 w-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+        <Bot className="h-3.5 w-3.5" />
       </div>
       <div className="space-y-2 min-w-0 flex-1">
         <div className="flex items-center gap-2">
@@ -92,17 +109,8 @@ export default function ChatMessage({
               Tool Calls
             </span>
             {message.tool_results.map((tr, i) => {
-              if (tr.tool === "rul_estimate" && tr.result) return <RulToolCard key={i} result={tr.result} />;
-              if (tr.tool === "anomaly_check" && tr.result) return <AnomalyToolCard key={i} result={tr.result} />;
-              if (tr.tool === "health_index" && tr.result) return <HealthIndexToolCard key={i} result={tr.result} />;
-              if (tr.tool === "sensor_trend_analysis" && tr.result) return <TrendToolCard key={i} result={tr.result} />;
-              if (tr.tool === "graph_failure_modes" && tr.result) return <FailureModesToolCard key={i} result={tr.result} />;
-              if (tr.tool === "graph_sensor_context" && tr.result) return <SensorContextToolCard key={i} result={tr.result} />;
-              if (tr.tool === "graph_related_units" && tr.result) return <RelatedUnitsToolCard key={i} result={tr.result} />;
-              if (tr.tool === "graph_maintenance_history" && tr.result) return <MaintenanceHistoryToolCard key={i} result={tr.result} />;
-              if (tr.tool === "maintenance_scheduler" && tr.result) return <MaintenanceSchedulerToolCard key={i} result={tr.result} />;
-              if (tr.tool === "unit_comparison_summary" && tr.result) return <ComparisonToolCard key={i} result={tr.result as any} />;
-              if (tr.tool === "direct_knowledge_response" && tr.result) return <DirectResponseCard key={i} result={tr.result as any} />;
+              const SpecializedCard = TOOL_CARD_REGISTRY[tr.tool];
+              if (SpecializedCard && tr.result) return <SpecializedCard key={i} result={tr.result} />;
               return <ToolCallCard key={i} {...tr} />;
             })}
           </div>

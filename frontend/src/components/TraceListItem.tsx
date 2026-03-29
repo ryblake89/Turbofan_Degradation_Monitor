@@ -2,13 +2,7 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { TraceEntry } from "@/types";
 import { formatRelativeTime } from "@/lib/utils";
-
-function healthDotColor(health: number): string {
-  if (health >= 60) return "bg-emerald-500";
-  if (health >= 30) return "bg-amber-500";
-  if (health >= 15) return "bg-red-500";
-  return "bg-red-700";
-}
+import { healthDotColor } from "@/lib/health";
 
 function outcomeBadgeClass(outcome: string | null): string {
   switch (outcome) {

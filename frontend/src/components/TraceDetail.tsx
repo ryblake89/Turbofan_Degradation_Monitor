@@ -11,11 +11,7 @@ interface ToolCalled {
   has_result: boolean;
 }
 
-function healthColor(value: number): string {
-  if (value > 60) return "text-emerald-400";
-  if (value >= 30) return "text-amber-400";
-  return "text-red-400";
-}
+import { healthTextColor, healthLabelBadge } from "@/lib/health";
 
 function anomalyColor(score: number): string {
   if (score >= 60) return "text-emerald-400";
@@ -48,20 +44,6 @@ function divergenceColor(value: number): string {
   return "bg-emerald-400/10 border-emerald-400/30 text-emerald-400";
 }
 
-function stageBadgeClass(stage: string): string {
-  switch (stage) {
-    case "healthy":
-      return "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
-    case "degrading":
-      return "bg-amber-500/15 text-amber-400 border-amber-500/30";
-    case "critical":
-      return "bg-red-500/15 text-red-400 border-red-500/30";
-    case "near_failure":
-      return "bg-red-600/20 text-red-300 border-red-500/40";
-    default:
-      return "bg-muted text-muted-foreground border-border";
-  }
-}
 
 function outcomeBadgeClass(outcome: string): string {
   switch (outcome) {
@@ -209,7 +191,7 @@ export default function TraceDetail({ trace }: TraceDetailProps) {
             {ctx.health_index != null && (
               <div>
                 <span className="text-muted-foreground">Health Index: </span>
-                <span className={healthColor(ctx.health_index as number)}>
+                <span className={healthTextColor(ctx.health_index as number)}>
                   {(ctx.health_index as number).toFixed(1)}
                 </span>
               </div>
@@ -235,7 +217,7 @@ export default function TraceDetail({ trace }: TraceDetailProps) {
                 <span className="text-muted-foreground">Stage: </span>
                 <Badge
                   variant="outline"
-                  className={`text-[10px] px-1.5 py-0 ${stageBadgeClass(ctx.degradation_stage as string)}`}
+                  className={`text-[10px] px-1.5 py-0 ${healthLabelBadge(ctx.degradation_stage as string)}`}
                 >
                   {ctx.degradation_stage as string}
                 </Badge>

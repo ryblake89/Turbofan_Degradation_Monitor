@@ -14,12 +14,7 @@ function similarityTextColor(score: number): string {
   return "text-muted-foreground";
 }
 
-function healthColor(value: number): string {
-  if (value >= 60) return "text-emerald-400";
-  if (value >= 30) return "text-amber-400";
-  if (value >= 15) return "text-red-400";
-  return "text-red-600";
-}
+import { healthTextColor } from "@/lib/health";
 
 function statusBadgeClass(status: string): string {
   switch (status) {
@@ -64,7 +59,7 @@ interface SimilarUnit {
 }
 
 export default function RelatedUnitsToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const unitId = result.unit_id as number | undefined;
   const similarUnits = (result.similar_units as SimilarUnit[]) ?? [];
@@ -134,7 +129,7 @@ export default function RelatedUnitsToolCard({ result }: { result: Record<string
                     <div className="flex items-center gap-1 shrink-0">
                       <span className="text-[10px] text-muted-foreground">Health</span>
                       {unit.health_index != null ? (
-                        <span className={`text-xs font-mono font-bold ${healthColor(unit.health_index)}`}>
+                        <span className={`text-xs font-mono font-bold ${healthTextColor(unit.health_index)}`}>
                           {Math.round(unit.health_index)}
                         </span>
                       ) : (

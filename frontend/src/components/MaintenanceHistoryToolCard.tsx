@@ -59,7 +59,7 @@ interface WorkOrder {
 }
 
 export default function MaintenanceHistoryToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const unitId = result.unit_id as number | undefined;
   const error = result.error as string | undefined;

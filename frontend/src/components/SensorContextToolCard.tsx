@@ -29,7 +29,7 @@ interface SensorEntry {
 }
 
 export default function SensorContextToolCard({ result }: { result: Record<string, unknown> }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const sensors = (result.sensors as SensorEntry[]) ?? [];
 
