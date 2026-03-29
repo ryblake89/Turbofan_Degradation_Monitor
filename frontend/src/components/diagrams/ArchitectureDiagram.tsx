@@ -15,7 +15,10 @@ function LayerBox({
   return (
     <div
       className="rounded-lg border px-4 py-3"
-      style={{ borderColor: color }}
+      style={{
+        borderColor: color,
+        boxShadow: `0 0 8px ${color}30, 0 0 2px ${color}20`,
+      }}
     >
       <div
         className="text-xs font-semibold uppercase tracking-wider mb-2"
@@ -41,7 +44,11 @@ function Chip({
     <div className="text-center">
       <div
         className="rounded border border-border bg-muted/40 px-2.5 py-1.5 text-xs font-medium"
-        style={color ? { color, borderColor: `${color}44` } : undefined}
+        style={
+          color
+            ? { color, borderColor: `${color}44`, boxShadow: `0 0 6px ${color}25` }
+            : undefined
+        }
       >
         {label}
       </div>
@@ -69,16 +76,16 @@ function Arrow({ label }: { label?: string }) {
 }
 
 export default function ArchitectureDiagram() {
-  const agents = [
-    "Supervisor",
-    "Diagnostic",
-    "Ops Planning",
-    "Comparison",
-    "General Assistant",
-    "Approval Gate",
-    "Action Executor",
-    "Response Gen",
-    "Trace Logger",
+  const agents: { name: string; color: string }[] = [
+    { name: "Supervisor", color: "#a78bfa" },
+    { name: "Diagnostic", color: "#22d3ee" },
+    { name: "Ops Planning", color: "#fbbf24" },
+    { name: "Comparison", color: "#f87171" },
+    { name: "General Assistant", color: "#fb923c" },
+    { name: "Approval Gate", color: "#f97316" },
+    { name: "Action Executor", color: "#34d399" },
+    { name: "Response Gen", color: "#f472b6" },
+    { name: "Trace Logger", color: "#22d3ee" },
   ];
 
   return (
@@ -86,7 +93,10 @@ export default function ArchitectureDiagram() {
       {/* Frontend layer */}
       <div
         className="rounded-lg border px-4 py-2 text-center"
-        style={{ borderColor: "#60a5fa" }}
+        style={{
+          borderColor: "#60a5fa",
+          boxShadow: "0 0 8px #60a5fa30, 0 0 2px #60a5fa20",
+        }}
       >
         <span className="text-xs font-semibold" style={{ color: "#60a5fa" }}>
           React Dashboard
@@ -111,11 +121,15 @@ export default function ArchitectureDiagram() {
           <div className="flex flex-wrap gap-1.5">
             {agents.map((a) => (
               <div
-                key={a}
+                key={a.name}
                 className="rounded border px-2 py-1 text-[11px] font-medium"
-                style={{ color: "#a78bfa", borderColor: "#a78bfa44" }}
+                style={{
+                  color: a.color,
+                  borderColor: `${a.color}44`,
+                  boxShadow: `0 0 6px ${a.color}20`,
+                }}
               >
-                {a}
+                {a.name}
               </div>
             ))}
           </div>
