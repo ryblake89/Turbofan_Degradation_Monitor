@@ -1,49 +1,35 @@
-import { useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useFleetSummary } from "@/hooks/useFleetData";
 import HealthSummaryCards from "@/components/HealthSummaryCards";
 import FleetHeatmap from "@/components/FleetHeatmap";
 import AlertList from "@/components/AlertList";
-import { Card, CardContent } from "@/components/ui/card";
-import { Info, ChevronDown, ChevronRight } from "lucide-react";
+import Collapsible from "@/components/ui/Collapsible";
 
 function AboutThisData() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Card size="sm">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <Info className="h-3.5 w-3.5 shrink-0" />
-        <span className="font-medium">Dataset & Methodology</span>
-        {open ? <ChevronDown className="h-3.5 w-3.5 ml-auto" /> : <ChevronRight className="h-3.5 w-3.5 ml-auto" />}
-      </button>
-      {open && (
-        <CardContent className="pt-0 text-xs text-muted-foreground space-y-2">
-          <p>
-            <strong className="text-foreground">NASA C-MAPSS FD001</strong> — 100 turbofan engines, run-to-failure simulation.
-            Single fault mode (HPC degradation), single operating condition (sea level).
-            21 sensors monitoring temperature, pressure, speed, and flow across 6 engine subsystems.
-            <span className="italic ml-1">Saxena et al. 2008, NASA Prognostics Center of Excellence.</span>
-          </p>
-          <p>
-            Most units show late-stage degradation because this is run-to-failure training data —
-            critical/near-failure health status is expected, not a bug.
-          </p>
-          <p>
-            <strong className="text-foreground">Methods:</strong> Isolation Forest anomaly detection,
-            piecewise linear RUL estimation, CUSUM change-point detection,
-            and a Neo4j knowledge graph for structural context.
-            Agents use LangGraph multi-agent orchestration with Anthropic Claude.
-          </p>
-        </CardContent>
-      )}
-    </Card>
+    <Collapsible title="Dataset & Methodology">
+      <p>
+        <strong className="text-foreground">NASA C-MAPSS FD001</strong> — 100 turbofan engines, run-to-failure simulation.
+        Single fault mode (HPC degradation), single operating condition (sea level).
+        21 sensors monitoring temperature, pressure, speed, and flow across 6 engine subsystems.
+        <span className="italic ml-1">Saxena et al. 2008, NASA Prognostics Center of Excellence.</span>
+      </p>
+      <p>
+        Most units show late-stage degradation because this is run-to-failure training data —
+        critical/near-failure health status is expected, not a bug.
+      </p>
+      <p>
+        <strong className="text-foreground">Methods:</strong> Isolation Forest anomaly detection,
+        piecewise linear RUL estimation, CUSUM change-point detection,
+        and a Neo4j knowledge graph for structural context.
+        Agents use LangGraph multi-agent orchestration with Anthropic Claude.
+      </p>
+    </Collapsible>
   );
 }
 
 export default function FleetOverview() {
+  usePageTitle("Fleet Overview");
   const { data, isLoading, error } = useFleetSummary(100);
 
   if (error) {

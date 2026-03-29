@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { MessageSquare, RotateCcw, Loader2 } from "lucide-react";
+import { MessageSquare, RotateCcw, Loader2, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
 import { useAgentChat } from "@/hooks/useAgentChat";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const SUGGESTED_QUERIES = [
   "What's the status of unit 14?",
@@ -17,6 +18,7 @@ const SUGGESTED_QUERIES = [
 ];
 
 export default function AgentChat() {
+  usePageTitle("Agent Chat");
   const {
     messages,
     isLoading,
@@ -28,12 +30,12 @@ export default function AgentChat() {
     clearChat,
   } = useAgentChat();
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll on new messages or loading state change
+  // Auto-scroll to the start of the newest message so the user reads top-down
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length, isLoading]);
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [messages.length]);
 
   const isEmpty = messages.length === 0;
 
@@ -70,18 +72,22 @@ export default function AgentChat() {
         ) : (
           <div className="max-w-3xl mx-auto space-y-6">
             {messages.map((msg, i) => (
-              <ChatMessage
+              <div
                 key={i}
-                message={msg}
-                onApprove={approveAction}
-                isLoading={isLoading}
-                isLatestApproval={
-                  !!pendingAction &&
-                  msg.role === "assistant" &&
-                  msg.pending_action != null &&
-                  i === messages.length - 1
-                }
-              />
+                ref={i === messages.length - 1 ? lastMessageRef : undefined}
+              >
+                <ChatMessage
+                  message={msg}
+                  onApprove={approveAction}
+                  isLoading={isLoading}
+                  isLatestApproval={
+                    !!pendingAction &&
+                    msg.role === "assistant" &&
+                    msg.pending_action != null &&
+                    i === messages.length - 1
+                  }
+                />
+              </div>
             ))}
 
             {isLoading && <ThinkingIndicator />}
@@ -91,8 +97,6 @@ export default function AgentChat() {
                 {error}
               </div>
             )}
-
-            <div ref={bottomRef} />
           </div>
         )}
       </div>
@@ -146,8 +150,8 @@ function EmptyState({ onSend }: { onSend: (msg: string) => void }) {
 function ThinkingIndicator() {
   return (
     <div className="flex gap-3">
-      <div className="h-7 w-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-        A
+      <div className="h-7 w-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+        <Bot className="h-3.5 w-3.5" />
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />

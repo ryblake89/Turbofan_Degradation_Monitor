@@ -1,55 +1,43 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FileText, Info, ChevronDown, ChevronRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 import { useTraces, type TraceFilters } from "@/hooks/useDecisionTraces";
 import TraceFilterBar from "@/components/TraceFilterBar";
 import TraceListItem from "@/components/TraceListItem";
 import TraceDetail from "@/components/TraceDetail";
+import Collapsible from "@/components/ui/Collapsible";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function AboutDecisionTraces() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Card size="sm">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <Info className="h-3.5 w-3.5 shrink-0" />
-        <span className="font-medium">About Decision Traces</span>
-        {open ? <ChevronDown className="h-3.5 w-3.5 ml-auto" /> : <ChevronRight className="h-3.5 w-3.5 ml-auto" />}
-      </button>
-      {open && (
-        <CardContent className="pt-0 text-xs text-muted-foreground space-y-2">
-          <p>
-            Every agent interaction is logged as an immutable <strong className="text-foreground">decision trace</strong> —
-            a complete record of the system's reasoning chain from question to recommendation.
-          </p>
-          <p>
-            Each trace captures: the user's <strong className="text-foreground">query</strong>, the
-            system's <strong className="text-foreground">intent classification</strong> (anomaly investigation,
-            maintenance request, fleet overview, etc.), the <strong className="text-foreground">tool chain</strong> (which
-            tools ran in what order and whether they succeeded), the <strong className="text-foreground">sensor
-            context</strong> (the data snapshot the agent saw at decision time), and
-            the <strong className="text-foreground">recommendation</strong> (the LLM's synthesized response).
-          </p>
-          <p>
-            Decision traces enable <strong className="text-foreground">audit, reproducibility, and
-            accountability</strong> for autonomous maintenance recommendations. If the system proposes a
-            borescope inspection, the trace shows exactly what data led to that recommendation.
-          </p>
-          <p>
-            Traces are linked from Agent Chat responses via the <strong className="text-foreground">"Trace #N"</strong> link
-            in the message metadata row. You can also filter traces by unit, intent type, or outcome using the filter bar below.
-          </p>
-        </CardContent>
-      )}
-    </Card>
+    <Collapsible title="About Decision Traces">
+      <p>
+        Every agent interaction is logged as an immutable <strong className="text-foreground">decision trace</strong> —
+        a complete record of the system's reasoning chain from question to recommendation.
+      </p>
+      <p>
+        Each trace captures: the user's <strong className="text-foreground">query</strong>, the
+        system's <strong className="text-foreground">intent classification</strong> (anomaly investigation,
+        maintenance request, fleet overview, etc.), the <strong className="text-foreground">tool chain</strong> (which
+        tools ran in what order and whether they succeeded), the <strong className="text-foreground">sensor
+        context</strong> (the data snapshot the agent saw at decision time), and
+        the <strong className="text-foreground">recommendation</strong> (the LLM's synthesized response).
+      </p>
+      <p>
+        Decision traces enable <strong className="text-foreground">audit, reproducibility, and
+        accountability</strong> for autonomous maintenance recommendations. If the system proposes a
+        borescope inspection, the trace shows exactly what data led to that recommendation.
+      </p>
+      <p>
+        Traces are linked from Agent Chat responses via the <strong className="text-foreground">"Trace #N"</strong> link
+        in the message metadata row. You can also filter traces by unit, intent type, or outcome using the filter bar below.
+      </p>
+    </Collapsible>
   );
 }
 
 export default function DecisionTraces() {
+  usePageTitle("Decision Traces");
   const [searchParams] = useSearchParams();
   const highlightId = searchParams.get("highlight");
 

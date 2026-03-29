@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronDown, ChevronRight, Info, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,49 +8,25 @@ import SensorChart from "@/components/SensorChart";
 import DegradationCurve from "@/components/DegradationCurve";
 import SubsystemDiagram from "@/components/SubsystemDiagram";
 import MaintenanceHistory from "@/components/MaintenanceHistory";
+import Collapsible from "@/components/ui/Collapsible";
 import { useUnitStatus, useUnitSensors, useMaintenanceLog } from "@/hooks/useUnitData";
 import { sensorLabel, sensorFullLabel, SENSORS, SENSOR_PHYSICS } from "@/lib/sensors";
-
-function healthColor(health: number) {
-  if (health >= 60) return "text-emerald-400";
-  if (health >= 30) return "text-amber-400";
-  if (health >= 15) return "text-red-400";
-  return "text-red-500";
-}
-
-function healthBadgeVariant(label: string) {
-  if (label === "healthy") return "outline" as const;
-  if (label === "degrading") return "secondary" as const;
-  return "destructive" as const;
-}
+import { healthTextColor, healthBadgeVariant } from "@/lib/health";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function Skeleton() {
   return <div className="h-8 w-24 bg-muted animate-pulse rounded" />;
 }
 
 function HealthMethodology() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <button
-      onClick={() => setOpen(!open)}
-      className="w-full text-left"
-    >
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-        <Info className="h-3 w-3 shrink-0" />
-        <span>How is Health Index calculated?</span>
-        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-      </div>
-      {open && (
-        <div className="mt-2 text-xs text-muted-foreground space-y-1 pl-4 border-l border-border" onClick={(e) => e.stopPropagation()}>
-          <p><strong className="text-foreground">Health Index</strong> = 40% anomaly score + 60% RUL estimate (0–100 scale)</p>
-          <p><strong>Anomaly score:</strong> Isolation Forest scores current sensor window (last 30 cycles) against healthy baselines</p>
-          <p><strong>RUL estimate:</strong> Piecewise linear regression on key degrading sensors, bootstrapped confidence intervals</p>
-          <p><strong>Labels:</strong> Healthy (&ge;80) · Degrading (&ge;50) · Critical (&ge;25) · Near Failure (&lt;25)</p>
-          <p className="italic">Note: The paper's original health index used hidden flow/efficiency margins not in the dataset — this composite is a reconstruction.</p>
-        </div>
-      )}
-    </button>
+    <Collapsible title="How is Health Index calculated?" variant="inline">
+      <p><strong className="text-foreground">Health Index</strong> = 40% anomaly score + 60% RUL estimate (0–100 scale)</p>
+      <p><strong>Anomaly score:</strong> Isolation Forest scores current sensor window (last 30 cycles) against healthy baselines</p>
+      <p><strong>RUL estimate:</strong> Piecewise linear regression on key degrading sensors, bootstrapped confidence intervals</p>
+      <p><strong>Labels:</strong> Healthy (&ge;80) · Degrading (&ge;50) · Critical (&ge;25) · Near Failure (&lt;25)</p>
+      <p className="italic">Note: The paper's original health index used hidden flow/efficiency margins not in the dataset — this composite is a reconstruction.</p>
+    </Collapsible>
   );
 }
 
@@ -95,6 +71,7 @@ export default function UnitDetail() {
   const { unitId } = useParams<{ unitId: string }>();
   const navigate = useNavigate();
   const id = Number(unitId);
+  usePageTitle(`Unit ${id}`);
   const [inputValue, setInputValue] = useState(String(id));
 
   useEffect(() => {
@@ -153,7 +130,7 @@ export default function UnitDetail() {
           <Skeleton />
         ) : d ? (
           <>
-            <span className={`text-3xl font-bold font-mono ${healthColor(d.health_index)}`}>
+            <span className={`text-3xl font-bold font-mono ${healthTextColor(d.health_index)}`}>
               {d.health_index.toFixed(1)}
             </span>
             <span className="text-muted-foreground text-sm">/100</span>
@@ -217,7 +194,7 @@ export default function UnitDetail() {
           </CardHeader>
           <CardContent>
             {status.isLoading ? <Skeleton /> : (
-              <div className={`text-2xl font-bold font-mono ${d ? healthColor(d.health_index) : ""}`}>
+              <div className={`text-2xl font-bold font-mono ${d ? healthTextColor(d.health_index) : ""}`}>
                 {d ? `${d.health_index.toFixed(1)}` : "—"}
               </div>
             )}
