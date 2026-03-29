@@ -9,9 +9,11 @@ const SUGGESTED_QUERIES = [
   "What's the status of unit 14?",
   "Which units need immediate attention?",
   "Schedule maintenance for unit 7",
-  "Show me the fleet overview",
+  "Compare unit 4 and unit 20",
+  "What is CUSUM change-point detection?",
+  "What sensors should I watch for HPC degradation?",
   "Investigate anomalies on unit 23",
-  "What sensors are degrading on unit 50?",
+  "Show me the fleet overview",
 ];
 
 export default function AgentChat() {
@@ -122,9 +124,9 @@ function EmptyState({ onSend }: { onSend: (msg: string) => void }) {
       </div>
       <h3 className="text-lg font-semibold mb-1">AI Diagnostic Assistant</h3>
       <p className="text-sm text-muted-foreground mb-6">
-        Ask about unit health, anomalies, maintenance scheduling, and fleet
-        status. The agent will route to specialized sub-agents and show tool
-        calls transparently.
+        Ask about unit health, compare engines side-by-side, schedule
+        maintenance, or ask general turbofan engineering questions. The agent
+        routes to specialized sub-agents and shows tool calls transparently.
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         {SUGGESTED_QUERIES.map((q) => (

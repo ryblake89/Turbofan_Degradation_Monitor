@@ -11,7 +11,7 @@ interface ChatInputProps {
 export default function ChatInput({
   onSend,
   disabled,
-  placeholder = "Ask about unit health, anomalies, maintenance, or fleet status…",
+  placeholder = "Ask about unit health, compare engines, maintenance, or turbofan engineering…",
 }: ChatInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);

@@ -38,3 +38,9 @@ class AgentState(TypedDict):
     # Memory
     decision_trace: dict
     graph_context: list[dict]
+
+    # Multi-unit comparison
+    comparison_unit_ids: list[int]
+
+    # General intent
+    general_tool_calls: list[dict]

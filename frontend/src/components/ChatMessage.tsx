@@ -13,6 +13,8 @@ import SensorContextToolCard from "@/components/SensorContextToolCard";
 import RelatedUnitsToolCard from "@/components/RelatedUnitsToolCard";
 import MaintenanceHistoryToolCard from "@/components/MaintenanceHistoryToolCard";
 import MaintenanceSchedulerToolCard from "@/components/MaintenanceSchedulerToolCard";
+import ComparisonToolCard from "@/components/ComparisonToolCard";
+import DirectResponseCard from "@/components/DirectResponseCard";
 import ApprovalCard from "@/components/ApprovalCard";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useAgentChat";
 
@@ -99,6 +101,8 @@ export default function ChatMessage({
               if (tr.tool === "graph_related_units" && tr.result) return <RelatedUnitsToolCard key={i} result={tr.result} />;
               if (tr.tool === "graph_maintenance_history" && tr.result) return <MaintenanceHistoryToolCard key={i} result={tr.result} />;
               if (tr.tool === "maintenance_scheduler" && tr.result) return <MaintenanceSchedulerToolCard key={i} result={tr.result} />;
+              if (tr.tool === "unit_comparison_summary" && tr.result) return <ComparisonToolCard key={i} result={tr.result as any} />;
+              if (tr.tool === "direct_knowledge_response" && tr.result) return <DirectResponseCard key={i} result={tr.result as any} />;
               return <ToolCallCard key={i} {...tr} />;
             })}
           </div>

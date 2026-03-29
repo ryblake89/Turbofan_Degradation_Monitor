@@ -199,6 +199,7 @@ class TestEdgeCases:
         assert result["current_intent"] in (
             "status_check", "anomaly_investigation",
             "maintenance_request", "fleet_overview",
+            "unit_comparison", "general",
         )
         ai_messages = [m for m in result["messages"] if m.type == "ai"]
         assert len(ai_messages) >= 1
@@ -214,10 +215,11 @@ class TestEdgeCases:
         assert result["current_intent"] in (
             "status_check", "anomaly_investigation",
             "maintenance_request", "fleet_overview",
+            "unit_comparison", "general",
         )
 
     def test_multi_unit_query(self, graph):
-        """Multi-unit query should not crash — supervisor picks one unit."""
+        """Multi-unit query should now route to comparison."""
         result, _ = _run_graph(
             graph,
             "Compare unit 3 and unit 7",
@@ -226,8 +228,9 @@ class TestEdgeCases:
         assert result["current_intent"] in (
             "status_check", "anomaly_investigation",
             "maintenance_request", "fleet_overview",
+            "unit_comparison", "general",
         )
-        # Should not crash even if only one unit_id is extracted
+        # Should not crash regardless of routing path
 
 
 # ---- Graph enrichment ----
@@ -323,3 +326,61 @@ class TestGraphEnrichment:
 
         # Should still have a pending action
         assert result["pending_action"] is not None
+
+
+# ---- Flow 4: Unit Comparison ----
+
+class TestUnitComparison:
+    """Flow: 'Compare unit 4 and unit 20' → supervisor → comparison → response → trace."""
+
+    def test_comparison_end_to_end(self, graph):
+        result, _ = _run_graph(graph, "Compare unit 4 and unit 20", thread_id="compare-4-20")
+        assert result["current_intent"] == "unit_comparison"
+        assert set(result["comparison_unit_ids"]) == {4, 20}
+
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        # Should have anomaly_check and rul_estimate for BOTH units
+        anomaly_results = [tr for tr in result["tool_results"] if tr["tool"] == "anomaly_check"]
+        assert len(anomaly_results) == 2
+        unit_ids_checked = {tr["result"]["unit_id"] for tr in anomaly_results}
+        assert unit_ids_checked == {4, 20}
+
+        # Should have a comparison summary
+        assert "unit_comparison_summary" in tool_names
+
+        # Should have an AI response
+        ai_messages = [m for m in result["messages"] if m.type == "ai"]
+        assert len(ai_messages) >= 1
+        assert len(ai_messages[-1].content) > 20
+
+    def test_comparison_with_three_units(self, graph):
+        result, _ = _run_graph(graph, "Compare units 1, 5, and 10", thread_id="compare-3")
+        assert result["current_intent"] == "unit_comparison"
+        assert len(result["comparison_unit_ids"]) == 3
+
+
+# ---- Flow 5: General Intent ----
+
+class TestGeneralIntent:
+    """Flow: general question → supervisor → general_assistant → response → trace."""
+
+    def test_general_knowledge_question(self, graph):
+        result, _ = _run_graph(graph, "What is CUSUM change-point detection?", thread_id="general-cusum")
+        assert result["current_intent"] == "general"
+
+        # Should NOT have anomaly_check/rul_estimate (no unit specified)
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        assert "anomaly_check" not in tool_names
+
+        # Should have a response
+        ai_messages = [m for m in result["messages"] if m.type == "ai"]
+        assert len(ai_messages) >= 1
+
+    def test_general_with_tool_selection(self, graph):
+        result, _ = _run_graph(graph, "Which units have the worst health?", thread_id="general-worst")
+        # LLM may classify as "general" or "fleet_overview" — both are valid
+        assert result["current_intent"] in ("general", "fleet_overview")
+
+        # Should produce tool results either way
+        tool_names = [tr["tool"] for tr in result["tool_results"]]
+        assert "fleet_summary" in tool_names or "direct_knowledge_response" in tool_names

@@ -19,8 +19,12 @@ Intent categories:
 - anomaly_investigation: User asks about anomalies, unusual behavior, or sensor readings for a unit.
 - maintenance_request: User wants to schedule, plan, or request maintenance for a unit.
 - fleet_overview: User asks about overall fleet health, fleet status, or which units need attention.
+- unit_comparison: User wants to compare two or more specific engine units (e.g., "compare unit 4 and unit 20", "how does unit 12 differ from unit 7"). Extract ALL mentioned unit IDs into unit_ids.
+- general: User asks a question that doesn't fit the other categories — methodology questions, sensor physics questions, system capability questions, or queries that would need custom data filtering. Also use this when the question is ambiguous or conversational.
 
 If the user mentions a unit number (e.g. "unit 14", "engine 7", "#3"), extract it as unit_id.
+If the user mentions multiple unit numbers for comparison, set unit_ids to the full list AND set unit_id to the first one mentioned.
+If the question is about the system itself, methodology, or domain knowledge — not about a specific unit or fleet action — classify as "general".
 If no specific unit is mentioned, set unit_id to null."""
 
 
@@ -31,8 +35,11 @@ class RouterOutput(BaseModel):
         "anomaly_investigation",
         "maintenance_request",
         "fleet_overview",
+        "unit_comparison",
+        "general",
     ]
-    unit_id: Optional[int] = Field(default=None, description="Engine unit ID if mentioned")
+    unit_id: Optional[int] = Field(default=None, description="Primary engine unit ID if mentioned")
+    unit_ids: Optional[list[int]] = Field(default=None, description="Multiple unit IDs for comparison queries")
     reasoning: str = Field(description="Brief explanation of classification")
 
 
@@ -44,6 +51,8 @@ def supervisor_node(state: dict) -> dict:
     messages = state["messages"]
     user_message = messages[-1].content if messages else ""
 
+    unit_ids: list[int] = []
+
     try:
         result = structured_llm.invoke([
             {"role": "system", "content": SUPERVISOR_SYSTEM_PROMPT},
@@ -51,6 +60,7 @@ def supervisor_node(state: dict) -> dict:
         ])
         intent = result.intent
         unit_id = result.unit_id
+        unit_ids = result.unit_ids or []
     except Exception:
         logger.exception("Supervisor LLM call failed — falling back")
         # Extract unit_id from message heuristically
@@ -66,6 +76,10 @@ def supervisor_node(state: dict) -> dict:
     # Determine which agent handles this intent
     if intent == "fleet_overview":
         active_agent = "ops_planning"
+    elif intent == "unit_comparison":
+        active_agent = "comparison"
+    elif intent == "general":
+        active_agent = "general_assistant"
     else:
         active_agent = "diagnostic"
 
@@ -83,4 +97,6 @@ def supervisor_node(state: dict) -> dict:
         "pending_action": None,
         "graph_context": [],
         "decision_trace": {},
+        "comparison_unit_ids": unit_ids,
+        "general_tool_calls": [],
     }

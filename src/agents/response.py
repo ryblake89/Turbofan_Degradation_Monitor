@@ -25,6 +25,9 @@ Guidelines:
 - If trend data is available, describe the trend (stable, degrading, accelerating).
 - If maintenance was proposed, summarize the proposal details.
 - For fleet overview, highlight the worst units and overall fleet health.
+- For unit comparisons: structure the response as a side-by-side comparison. Lead with a summary table of key metrics (health index, RUL, anomaly score, degradation stage) for each unit. Then highlight the most significant differences. If one unit is significantly worse, recommend which needs attention first.
+- For general questions: answer naturally. You may explain system methodology, sensor physics, data characteristics, or anything within your domain knowledge. If tool results are available, incorporate them. If the question cannot be answered with available data, explain what the system can and cannot do.
+- If tool results include a "direct_knowledge_response", the question was answered from domain knowledge without querying engine data. Use this response as the primary basis — do not substantially rewrite it, but you may add context from any other tool results that were collected.
 - Be concise. Use numbers. Skip filler.
 - Do NOT make up data — only report what's in the tool results."""
 

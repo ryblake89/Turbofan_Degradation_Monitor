@@ -4,7 +4,9 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 
 from src.agents.approval import action_executor_node, approval_gate_node
+from src.agents.comparison import comparison_node
 from src.agents.diagnostic import diagnostic_node
+from src.agents.general_assistant import general_assistant_node
 from src.agents.ops_planning import ops_planning_node
 from src.agents.response import response_generator_node
 from src.agents.state import AgentState
@@ -14,8 +16,13 @@ from src.agents.trace import trace_logger_node
 
 def _route_after_supervisor(state: dict) -> str:
     """Route from supervisor to the appropriate sub-agent."""
-    if state.get("active_agent") == "ops_planning":
+    agent = state.get("active_agent")
+    if agent == "ops_planning":
         return "ops_planning"
+    if agent == "comparison":
+        return "comparison"
+    if agent == "general_assistant":
+        return "general_assistant"
     return "diagnostic"
 
 
@@ -53,6 +60,8 @@ def build_graph() -> StateGraph:
     graph.add_node("supervisor", supervisor_node)
     graph.add_node("diagnostic", diagnostic_node)
     graph.add_node("ops_planning", ops_planning_node)
+    graph.add_node("comparison", comparison_node)
+    graph.add_node("general_assistant", general_assistant_node)
     graph.add_node("response_generator", response_generator_node)
     graph.add_node("approval_gate", approval_gate_node)
     graph.add_node("action_executor", action_executor_node)
@@ -65,6 +74,8 @@ def build_graph() -> StateGraph:
     graph.add_conditional_edges("supervisor", _route_after_supervisor, {
         "diagnostic": "diagnostic",
         "ops_planning": "ops_planning",
+        "comparison": "comparison",
+        "general_assistant": "general_assistant",
     })
 
     graph.add_conditional_edges("diagnostic", _route_after_diagnostic, {
@@ -82,7 +93,9 @@ def build_graph() -> StateGraph:
         "response_generator": "response_generator",
     })
 
-    # Fixed edges
+    # Fixed edges — new nodes always go to response_generator
+    graph.add_edge("comparison", "response_generator")
+    graph.add_edge("general_assistant", "response_generator")
     graph.add_edge("response_generator", "trace_logger")
     graph.add_edge("action_executor", "trace_logger")
     graph.add_edge("trace_logger", END)
