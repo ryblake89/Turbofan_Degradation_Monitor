@@ -10,6 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from src.agents.graph import compile_graph
 from src.api.routes import chat, fleet, health, maintenance, traces, units
 from src.api.session import SessionManager
+from src.tools.fleet_tools import fleet_summary
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,9 @@ async def lifespan(app: FastAPI):
     app.state.graph = compile_graph(checkpointer=MemorySaver())
     app.state.sessions = SessionManager()
     logger.info("Agent graph ready.")
+    logger.info("Pre-computing fleet summary...")
+    app.state.fleet_cache = fleet_summary(top_n=100)
+    logger.info("Fleet summary cached.")
     yield
 
 
@@ -34,7 +38,11 @@ app = FastAPI(
 # CORS — allow React dev server (Phase 4) and any local tooling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://turbofan.ryanblake.dev",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
