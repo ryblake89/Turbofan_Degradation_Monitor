@@ -31,8 +31,8 @@ export const TOOL_CARD_REGISTRY: Record<
   graph_related_units: RelatedUnitsToolCard,
   graph_maintenance_history: MaintenanceHistoryToolCard,
   maintenance_scheduler: MaintenanceSchedulerToolCard,
-  unit_comparison_summary: ComparisonToolCard as React.ComponentType<{ result: Record<string, unknown> }>,
-  direct_knowledge_response: DirectResponseCard as React.ComponentType<{ result: Record<string, unknown> }>,
+  unit_comparison_summary: ComparisonToolCard as unknown as React.ComponentType<{ result: Record<string, unknown> }>,
+  direct_knowledge_response: DirectResponseCard as unknown as React.ComponentType<{ result: Record<string, unknown> }>,
 };
 
 interface ChatMessageProps {
