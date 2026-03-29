@@ -113,7 +113,7 @@ export default function UnitDetail() {
   if (isError) {
     return (
       <div className="space-y-4">
-        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link to="/fleet" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Fleet
         </Link>
         <Card>
@@ -136,7 +136,7 @@ export default function UnitDetail() {
   return (
     <div className="space-y-6">
       {/* Back link */}
-      <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+      <Link to="/fleet" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to Fleet
       </Link>
 
@@ -162,7 +162,7 @@ export default function UnitDetail() {
       </div>
 
       {/* Health summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Health Index */}
         <Card>
           <CardHeader className="pb-2">

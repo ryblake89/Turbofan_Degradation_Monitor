@@ -119,12 +119,20 @@ export default function DecisionTraces() {
           </button>
         </div>
       ) : isLoading && !hasData ? (
-        <div className="space-y-2">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="h-10 rounded-md bg-muted/50 animate-pulse"
-            />
+              className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0"
+            >
+              <div className="h-3.5 w-3.5 rounded bg-muted animate-pulse shrink-0" />
+              <div className="h-3 w-10 rounded bg-muted animate-pulse shrink-0" />
+              <div className="h-3 w-14 rounded bg-muted animate-pulse shrink-0" />
+              <div className="h-4 w-20 rounded-full bg-muted animate-pulse shrink-0" />
+              <div className="h-4 w-16 rounded-full bg-muted animate-pulse shrink-0" />
+              <div className="h-3 flex-1 rounded bg-muted/50 animate-pulse" />
+              <div className="h-3 w-12 rounded bg-muted animate-pulse shrink-0" />
+            </div>
           ))}
         </div>
       ) : filteredTraces.length === 0 ? (

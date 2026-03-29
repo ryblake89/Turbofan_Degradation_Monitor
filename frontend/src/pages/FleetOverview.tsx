@@ -77,7 +77,7 @@ export default function FleetOverview() {
 
       <HealthSummaryCards data={data} isLoading={isLoading} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <FleetHeatmap units={data?.priority_list ?? []} isLoading={isLoading} />
         <AlertList units={data?.priority_list ?? []} isLoading={isLoading} />
       </div>

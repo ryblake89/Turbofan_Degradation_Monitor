@@ -33,7 +33,7 @@ export default function FleetHeatmap({ units, isLoading }: Props) {
           <CardTitle className="text-lg">Fleet Health Heatmap</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-1">
             {Array.from({ length: 100 }, (_, i) => (
               <div
                 key={i}
@@ -56,7 +56,7 @@ export default function FleetHeatmap({ units, isLoading }: Props) {
         </p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-10 gap-1">
+        <div className="grid grid-cols-5 md:grid-cols-10 gap-1">
           {grid.map((unit, i) => {
             const unitId = i + 1;
             const health = unit?.health_index ?? 0;

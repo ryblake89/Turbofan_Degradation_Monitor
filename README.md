@@ -157,10 +157,34 @@ The dashboard is available at `http://localhost:5173` and connects to the API at
 ### Docker (full stack)
 
 ```bash
+# Start all services (PostgreSQL, Neo4j, FastAPI, React dashboard)
 docker compose up -d
+
+# Wait for services to be healthy (~30s)
+docker compose ps  # All should show "healthy" or "running"
+
+# Seed data (first time only)
+python -m src.data.ingest
+python -m src.graph.populate_ontology
+python -m src.memory.seed_playbooks
+
+# Open the dashboard
+# http://localhost:3000
 ```
 
-This starts PostgreSQL, Neo4j, and the FastAPI service. The API is available at `http://localhost:8000`.
+This starts PostgreSQL, Neo4j, the FastAPI service, and the React frontend behind nginx. The dashboard is available at `http://localhost:3000` and proxies API requests to FastAPI on port 8000.
+
+### Development
+
+```bash
+# Backend
+docker compose up db neo4j -d   # Start databases only
+uvicorn src.api.app:app --reload --port 8000
+
+# Frontend (separate terminal)
+cd frontend
+npm run dev                      # Vite dev server on :5173
+```
 
 ### Run Tests
 
