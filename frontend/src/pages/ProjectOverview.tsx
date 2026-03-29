@@ -937,91 +937,94 @@ function KnowledgeGraphSection() {
           engines had similar degradation and what happened to them?"
         </p>
 
-        {/* Ontology schema diagram */}
-        <OntologyDiagram />
+        {/* Two-column layout: tables left, diagram right */}
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
+          {/* Left column: property tables stacked */}
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs font-medium text-foreground mb-2">
+                Relationship properties
+              </p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-1.5 pr-3 text-foreground">
+                      Relationship
+                    </th>
+                    <th className="text-left py-1.5 pr-3 text-foreground">
+                      Property
+                    </th>
+                    <th className="text-left py-1.5 text-foreground">Values</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-3 font-mono">MONITORED_BY</td>
+                    <td className="py-1.5 pr-3">criticality</td>
+                    <td className="py-1.5">low / medium / high</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-3 font-mono">INDICATED_BY</td>
+                    <td className="py-1.5 pr-3">correlation_strength</td>
+                    <td className="py-1.5">0–1</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 pr-3 font-mono">SIMILAR_TO</td>
+                    <td className="py-1.5 pr-3">similarity_score</td>
+                    <td className="py-1.5">Pearson, 0–1</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-        {/* Schema property legend */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs font-medium text-foreground mb-2">
-              Relationship properties
+            <div>
+              <p className="text-xs font-medium text-foreground mb-2">
+                WorkOrder node properties
+              </p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-1.5 pr-3 text-foreground">
+                      Property
+                    </th>
+                    <th className="text-left py-1.5 text-foreground">Values</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-3 font-mono">action_type</td>
+                    <td className="py-1.5">inspect / service / replace</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-3 font-mono">urgency</td>
+                    <td className="py-1.5">routine / soon / immediate</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 pr-3 font-mono">status</td>
+                    <td className="py-1.5">
+                      pending / approved / rejected / completed
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Graph scale: ~134 nodes across 7 types, ~735 relationships across
+              8 types
             </p>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-1.5 pr-3 text-foreground">
-                    Relationship
-                  </th>
-                  <th className="text-left py-1.5 pr-3 text-foreground">
-                    Property
-                  </th>
-                  <th className="text-left py-1.5 text-foreground">Values</th>
-                </tr>
-              </thead>
-              <tbody className="text-muted-foreground">
-                <tr className="border-b border-border/50">
-                  <td className="py-1.5 pr-3 font-mono">MONITORED_BY</td>
-                  <td className="py-1.5 pr-3">criticality</td>
-                  <td className="py-1.5">low / medium / high</td>
-                </tr>
-                <tr className="border-b border-border/50">
-                  <td className="py-1.5 pr-3 font-mono">INDICATED_BY</td>
-                  <td className="py-1.5 pr-3">correlation_strength</td>
-                  <td className="py-1.5">0–1</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 pr-3 font-mono">SIMILAR_TO</td>
-                  <td className="py-1.5 pr-3">similarity_score</td>
-                  <td className="py-1.5">Pearson, 0–1</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-foreground mb-2">
-              WorkOrder node properties
+
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              These queries are naturally graph-shaped — 2–3 hop traversals that
+              would require complex JOINs in a relational database. Neo4j makes
+              the query intent readable; PostgreSQL handles the tabular data
+              (sensor readings, traces, maintenance log) where it excels.
             </p>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-1.5 pr-3 text-foreground">
-                    Property
-                  </th>
-                  <th className="text-left py-1.5 text-foreground">Values</th>
-                </tr>
-              </thead>
-              <tbody className="text-muted-foreground">
-                <tr className="border-b border-border/50">
-                  <td className="py-1.5 pr-3 font-mono">action_type</td>
-                  <td className="py-1.5">inspect / service / replace</td>
-                </tr>
-                <tr className="border-b border-border/50">
-                  <td className="py-1.5 pr-3 font-mono">urgency</td>
-                  <td className="py-1.5">routine / soon / immediate</td>
-                </tr>
-                <tr>
-                  <td className="py-1.5 pr-3 font-mono">status</td>
-                  <td className="py-1.5">
-                    pending / approved / rejected / completed
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
+
+          {/* Right column: ontology diagram */}
+          <OntologyDiagram />
         </div>
-
-        <p className="text-xs text-muted-foreground">
-          Graph scale: ~134 nodes across 7 types, ~735 relationships across 8
-          types
-        </p>
-
-        {/* Why Neo4j? */}
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          These queries are naturally graph-shaped — 2–3 hop traversals that
-          would require complex JOINs in a relational database. Neo4j makes the
-          query intent readable; PostgreSQL handles the tabular data (sensor
-          readings, traces, maintenance log) where it excels.
-        </p>
 
         {/* What it enables */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
