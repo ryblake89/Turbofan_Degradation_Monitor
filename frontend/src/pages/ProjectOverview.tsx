@@ -142,8 +142,7 @@ function DataSection() {
                 structured recommendations with full evidence.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Because maintenance proposals require human approval before execution,
-                the agent graph pauses at an approval gate and resumes with the
+                The agent graph pauses at an approval gate and resumes with the
                 operator's decision. Every interaction is logged as an immutable
                 decision trace with pgvector embeddings for future similarity retrieval.
               </p>
@@ -504,12 +503,12 @@ function ArchitectureSection() {
         <p className="text-sm text-muted-foreground leading-relaxed">
           LangGraph provides a state-machine-based agent runtime with built-in
           checkpointing, conditional routing, and human-in-the-loop interrupts.
-          The graph executes as a DAG with typed state — each node reads from
+          The graph executes as a DAG with typed state. Each node reads from
           and writes to a shared AgentState schema, enabling tools to build on
           each other's results. The{" "}
           <code className="text-foreground">interrupt()</code> primitive pauses
           graph execution at the approval gate and resumes with the user's
-          decision injected as state — no external coordination service needed.
+          decision injected as state with no external coordination service needed.
         </p>
 
         {/* Collapsible: Agent Details */}
