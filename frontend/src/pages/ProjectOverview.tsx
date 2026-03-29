@@ -166,7 +166,7 @@ function DataSection() {
           </div>
 
           {/* Engine diagram */}
-          <div className="shrink-0">
+          <div className="shrink-0 flex flex-col items-center">
             <div className="bg-white rounded-lg p-2 shadow-sm">
               <img
                 src="/images/engine-diagram.jpg"
@@ -175,7 +175,7 @@ function DataSection() {
                 style={{ height: "250px" }}
               />
             </div>
-            <p className="text-xs text-muted-foreground italic mt-2 max-w-64 text-center">
+            <p className="text-xs text-muted-foreground italic mt-2 text-center" style={{ maxWidth: "280px" }}>
               Turbofan cross-section with key sensor locations. 7 key sensors
               selected for degradation monitoring.
             </p>
