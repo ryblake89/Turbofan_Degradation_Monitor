@@ -470,11 +470,7 @@ export default function HeroChatReplay() {
 
       {/* End state: thesis + buttons */}
       {showEnd && (
-        <div className="animate-fadeInUp text-center space-y-3 pt-1">
-          <p className="text-base font-medium text-foreground">
-            From question to approved work order in 6 agent nodes — with a
-            human in the loop.
-          </p>
+        <div className="animate-fadeInUp text-center pt-1">
           <div className="flex justify-center gap-3">
             {isFinished && (
               <button
